@@ -28,4 +28,8 @@ class MomentsApi(APIView):
             },status = status.HTTP_400_BAD_REQUEST)
 
 
-    
+class serveron(APIView):
+    def get(self,request):
+        return Response({
+            "message":"developer is coding now"
+        },status = status.HTTP_200_OK)
