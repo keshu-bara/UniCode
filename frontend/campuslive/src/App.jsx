@@ -20,7 +20,7 @@ function App() {
         <div className="hero">
           <Hero />
         </div>
-        <Footer />
+        <Footer className="relative bottom-0 w-full" />
 
         <Routes>
           {/* <Route path="/" element={<Hero />} /> */}
