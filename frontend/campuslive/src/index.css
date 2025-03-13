@@ -1,106 +1,120 @@
 @import "tailwindcss";
 
-.poppins-light {
-    font-family: 'Poppins', sans-serif;
-    font-weight: 300;
-}
+/* backgroundEffects.css */
+/* Add these styles to your CSS file */
 
-/* Light */
+
+
 .poppins-regular {
     font-family: 'Poppins', sans-serif;
-    font-weight: 400;
 }
 
-/* Regular */
-.poppins-bold {
-    font-family: 'Poppins', sans-serif;
-    font-weight: 700;
-}
-
-/* Bold */
-.poppins-extrabold {
-    font-family: 'Poppins', sans-serif;
-    font-weight: 800;
-}
-
-/* Extra Bold */
-
-.opensans-light-italic {
-    font-family: 'Open Sans', sans-serif;
-    font-weight: 300;
-    font-style: italic;
-}
-
-.opensans-bold {
-    font-family: 'Open Sans', sans-serif;
-    font-weight: 700;
+.bg-gray-800 {
+    background-color: #2d3748;
+    /* Your original background color */
 }
 
 
-body{
-    font-family: 'Poppins', sans-serif;
+#background-effects {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    z-index: -1;
 }
-.icon{
-    height: 100%;
-    font-size: 30px;
-    color:white;
-    font-family: 'Poppins', sans-serif;
+
+.blob {
+    position: absolute;
+    border-radius: 9999px;
+    filter: blur(60px);
+    /* Soft glow effect */
+    animation: pulse 4s infinite alternate ease-in-out;
+    opacity: 0.9;
+    /* More visibility */
 }
-/* Add these styles to your CSS file or within a <style> tag */
+
+/* Blob Positions for Larger Screens */
+.blob-1 {
+    top: -15%;
+    left: -5%;
+    width: 250px;
+    height: 250px;
+    background: rgba(59, 130, 246, 0.4);
+}
+
+.blob-2 {
+    bottom: 10%;
+    right: -5%;
+    width: 300px;
+    height: 300px;
+    background: rgba(34, 197, 94, 0.4);
+    animation-delay: 1s;
+}
+
+.blob-3 {
+    top: 30%;
+    left: 50%;
+    width: 280px;
+    height: 280px;
+    background: rgba(139, 92, 246, 0.4);
+    animation-delay: 2s;
+    transform: translateX(-50%);
+    /* Center this blob */
+}
+
+/* Adjustments for Extra Large Screens */
+@media (min-width: 1280px) {
+    .blob-1 {
+        width: 350px;
+        height: 350px;
+    }
+
+    .blob-2 {
+        width: 400px;
+        height: 400px;
+    }
+
+    .blob-3 {
+        width: 350px;
+        height: 350px;
+    }
+}
+
+/* Mobile: Keep the full-screen effect */
 @media (max-width: 640px) {
-
-    /* Styles for small screens (e.g., mobile) */
-    .small-screen-1 {
-        width: 32px;
-        height: 32px;
+    .blob {
+        width: 60vw;
+        height: 60vw;
     }
 
-    .small-screen-2 {
-        width: 48px;
-        height: 48px;
+    .blob-1 {
+        top: -10%;
+        left: -5%;
     }
 
-    .small-screen-3 {
-        width: 36px;
-        height: 36px;
-    }
-}
-
-@media (min-width: 641px) and (max-width: 1024px) {
-
-    /* Styles for medium screens (e.g., tablets) */
-    .medium-screen-1 {
-        width: 64px;
-        height: 64px;
+    .blob-2 {
+        bottom: 5%;
+        right: 5%;
     }
 
-    .medium-screen-2 {
-        width: 96px;
-        height: 96px;
-    }
-
-    .medium-screen-3 {
-        width: 72px;
-        height: 72px;
+    .blob-3 {
+        top: 40%;
+        right: 15%;
     }
 }
 
-/* Default styles for large screens (e.g., desktops) */
-.large-screen-1 {
-    width: 128px;
-    height: 128px;
+/* Pulsing Animation */
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+        opacity: 0.8;
+    }
+
+    100% {
+        transform: scale(1.3);
+        /* Bigger glow effect */
+        opacity: 1;
+    }
 }
-
-.large-screen-2 {
-    width: 192px;
-    height: 192px;
-}
-
-.large-screen-3 {
-    width: 144px;
-    height: 144px;
-}
-
-
-
-

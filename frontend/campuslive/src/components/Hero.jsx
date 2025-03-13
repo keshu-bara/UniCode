@@ -45,18 +45,7 @@ export default function Hero() {
 
 
   return (
-    <main className=" flex flex-col md:flex-row min-h-[80vh] h-full w-full items-stretch bg-gray-900 text-gray-100">
-      <div className="absolute top-0 left-0 w-full h-full overflow-hidden z-0">
-        <div className="absolute top-0 left-0 w-64 h-64 bg-blue-500/20 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2 animate-pulse"></div>
-        <div
-          className="absolute bottom-0 right-0 w-96 h-96 bg-green-500/20 rounded-full blur-3xl translate-x-1/3 translate-y-1/3 animate-pulse"
-          style={{ animationDelay: "1s" }}
-        ></div>
-        <div
-          className="absolute top-1/2 right-1/4 w-72 h-72 bg-purple-500/20 rounded-full blur-3xl animate-pulse"
-          style={{ animationDelay: "2s" }}
-        ></div>
-      </div>
+    <main className=" flex flex-col md:flex-row min-h-[80vh] h-full w-full items-stretch  text-gray-100">
       {/* Left Section - Value Proposition */}
       <div className=" main_center_box h-full flex flex-wrap justify-center items-center w-full md:w-1/2 px-6 py-12">
         <div className="mainmoto w-full">
@@ -91,7 +80,7 @@ export default function Hero() {
             </Link>
           </div>
 
-          <div className="value-props text-gray-300 p-4 bg-gray-800 rounded-lg border border-gray-700 shadow-lg">
+          <div className="value-props text-gray-300 p-4 bg-gray-900 rounded-lg border border-gray-700 shadow-lg">
             <h3 className="text-xl font-semibold mb-4 text-blue-400">
               Why UniCode?
             </h3>
@@ -197,9 +186,9 @@ export default function Hero() {
             </div>
           </div>
 
-          <div className="flex-1 flex flex-col overflow-hidden">
+          <div className="flex-1 flex flex-col ">
             {/* Profile Section - Taking full height with additional top margin */}
-            <div className="profilsec flex-1 w-full flex items-center justify-center overflow-auto mt-4">
+            <div className="profilsec flex-1 w-full flex items-center justify-center mt-4">
               {/* Main profile card */}
               <div className="w-auto h-full mb-10">
                 <Profile />

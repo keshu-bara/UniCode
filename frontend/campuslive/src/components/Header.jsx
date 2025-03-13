@@ -18,7 +18,7 @@ export default function Header() {
   ];
 
   return (
-    <header className="bg-gray-800/80 m-4 rounded-lg shadow-lg border border-gray-700">
+    <header className="bg-gray-900/50 m-4 rounded-lg shadow-lg border border-gray-700">
       <div className="container mx-auto p-4">
         {/* Top Section: Logo and Navigation */}
         <div className="flex flex-wrap justify-between items-center">

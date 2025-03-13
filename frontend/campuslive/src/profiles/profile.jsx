@@ -45,7 +45,7 @@ export default function Profile() {
   }, []);
   return (
     <div
-              className={`w-full bg-gray-800 rounded-xl shadow-xl overflow-hidden transition-all duration-500 ease-in-out border border-gray-700  ${
+              className={`w-full bg-gray-900/50 rounded-xl shadow-xl overflow-hidden transition-all duration-500 ease-in-out border border-gray-700  ${
                 isTransitioning ? "opacity-0 scale-95" : "opacity-100 scale-100"
               }`}
             >
@@ -100,7 +100,7 @@ export default function Profile() {
                 </div>
               </div>
 
-              <div className="bg-gray-900 p-4 border-t border-gray-700">
+              <div className="bg-gray-900/50 p-4 border-t border-gray-700">
                 <div className="flex justify-between">
                   <div className="flex items-center">
                     <svg
