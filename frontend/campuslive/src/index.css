@@ -1,1 +1,54 @@
 @import "tailwindcss";
+
+.poppins-light {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 300;
+}
+
+/* Light */
+.poppins-regular {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 400;
+}
+
+/* Regular */
+.poppins-bold {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 700;
+}
+
+/* Bold */
+.poppins-extrabold {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 800;
+}
+
+/* Extra Bold */
+
+.opensans-light-italic {
+    font-family: 'Open Sans', sans-serif;
+    font-weight: 300;
+    font-style: italic;
+}
+
+.opensans-bold {
+    font-family: 'Open Sans', sans-serif;
+    font-weight: 700;
+}
+
+
+body{
+    font-family: 'Poppins', sans-serif;
+}
+.icon{
+    height: 100%;
+    font-size: 30px;
+    color:white;
+    font-family: 'Poppins', sans-serif;
+}
+.icon:hover{
+    
+}
+
+
+
