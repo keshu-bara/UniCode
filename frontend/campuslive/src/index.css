@@ -46,6 +46,60 @@ body{
     color:white;
     font-family: 'Poppins', sans-serif;
 }
+/* Add these styles to your CSS file or within a <style> tag */
+@media (max-width: 640px) {
+
+    /* Styles for small screens (e.g., mobile) */
+    .small-screen-1 {
+        width: 32px;
+        height: 32px;
+    }
+
+    .small-screen-2 {
+        width: 48px;
+        height: 48px;
+    }
+
+    .small-screen-3 {
+        width: 36px;
+        height: 36px;
+    }
+}
+
+@media (min-width: 641px) and (max-width: 1024px) {
+
+    /* Styles for medium screens (e.g., tablets) */
+    .medium-screen-1 {
+        width: 64px;
+        height: 64px;
+    }
+
+    .medium-screen-2 {
+        width: 96px;
+        height: 96px;
+    }
+
+    .medium-screen-3 {
+        width: 72px;
+        height: 72px;
+    }
+}
+
+/* Default styles for large screens (e.g., desktops) */
+.large-screen-1 {
+    width: 128px;
+    height: 128px;
+}
+
+.large-screen-2 {
+    width: 192px;
+    height: 192px;
+}
+
+.large-screen-3 {
+    width: 144px;
+    height: 144px;
+}
 
 
 
