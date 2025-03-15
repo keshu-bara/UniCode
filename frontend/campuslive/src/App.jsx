@@ -1,8 +1,7 @@
 import './App.css'
 import Header from './components/Header'
 import Hero from './components/Hero'
-import Register from './components/Auth/Register'
-import Login from './components/Auth/Login'
+import Auth from './components/Auth/Auth'
 import About from './pages/About'
 import Test from './pages/Test'
 import Footer from './components/Footer'
@@ -27,8 +26,7 @@ function App() {
               </div>
             }
           />
-          <Route path="login/" element={<Login />} />
-          <Route path="register/" element={<Register />} />
+          <Route path="auth/" element={<Auth />} />
           <Route path="about/" element={<About />} />
           <Route path="Test/" element={<Test />} />
         </Routes>

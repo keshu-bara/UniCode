@@ -1,8 +1,15 @@
 import React, { useState } from "react";
-import { Link } from "react-router";
+import { Link ,useLocation ,useSearchParams} from "react-router";
 
-const Login = () => {
-  const [isLogin, setIsLogin] = useState(true);
+const Auth = () => {
+  const [searchParams] = useSearchParams();
+  const buttonClicked = searchParams.get("button") || "unknown"; // Read from URL
+  console.log(buttonClicked);
+
+  let v = buttonClicked === "login";
+  console.log(v);
+  const [isAuth, setIsAuth] = useState(v);
+
   const [formData, setFormData] = useState({
     fullName: "",
     username: "",
@@ -21,47 +28,37 @@ const Login = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Handle login/registration logic here
+    // Handle Auth/registration logic here
     console.log("Form data:", formData);
   };
 
   const toggleForm = () => {
-    setIsLogin(!isLogin);
+    setIsAuth(!isAuth);
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-900 relative overflow-hidden">
+    <div className="flex items-center justify-center min-h-screen  relative overflow-hidden">
       {/* Animated background elements */}
-      <div className="absolute top-0 left-0 w-full h-full overflow-hidden z-0">
-        <div className="absolute top-0 left-0 w-64 h-64 bg-blue-500/20 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2 animate-pulse"></div>
-        <div
-          className="absolute bottom-0 right-0 w-96 h-96 bg-green-500/20 rounded-full blur-3xl translate-x-1/3 translate-y-1/3 animate-pulse"
-          style={{ animationDelay: "1s" }}
-        ></div>
-        <div
-          className="absolute top-1/2 right-1/4 w-72 h-72 bg-purple-500/20 rounded-full blur-3xl animate-pulse"
-          style={{ animationDelay: "2s" }}
-        ></div>
-      </div>
 
-      <div className="w-full max-w-md p-8 space-y-6 bg-gray-800/80 backdrop-blur-sm rounded-lg shadow-xl border border-gray-700 z-10">
+
+      <div className="w-full max-w-md p-8 space-y-6 bg-gray-900/50 backdrop-blur-sm rounded-lg shadow-xl border border-gray-700 z-10">
         <div className="text-center">
           <div className="flex justify-center items-center mb-4">
             <h1 className="text-3xl font-bold text-white">Uni</h1>
             <h1 className="text-3xl font-bold text-blue-500">Code</h1>
           </div>
           <h2 className="text-2xl font-bold text-white">
-            {isLogin ? "Login" : "Register"}
+            {isAuth ? "Login" : "Register"}
           </h2>
           <p className="mt-2 text-sm text-gray-300">
-            {isLogin
+            {isAuth
               ? "Connect with your developer community"
               : "Join the developer dating community"}
           </p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-5">
-          {!isLogin && (
+          {!isAuth && (
             <>
               <div>
                 <label
@@ -74,7 +71,7 @@ const Login = () => {
                   id="fullName"
                   name="fullName"
                   type="text"
-                  required={!isLogin}
+                  required={!isAuth}
                   className="w-full px-3 py-2 mt-1 bg-gray-700 border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-gray-100"
                   value={formData.fullName}
                   onChange={handleInputChange}
@@ -91,7 +88,7 @@ const Login = () => {
                   id="username"
                   name="username"
                   type="text"
-                  required={!isLogin}
+                  required={!isAuth}
                   className="w-full px-3 py-2 mt-1 bg-gray-700 border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-gray-100"
                   value={formData.username}
                   onChange={handleInputChange}
@@ -130,7 +127,7 @@ const Login = () => {
               id="password"
               name="password"
               type="password"
-              autoComplete={isLogin ? "current-password" : "new-password"}
+              autoComplete={isAuth ? "current-password" : "new-password"}
               required
               className="w-full px-3 py-2 mt-1 bg-gray-700 border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-gray-100"
               value={formData.password}
@@ -138,7 +135,7 @@ const Login = () => {
             />
           </div>
 
-          {!isLogin && (
+          {!isAuth && (
             <div>
               <label
                 htmlFor="confirmPassword"
@@ -151,7 +148,7 @@ const Login = () => {
                 name="confirmPassword"
                 type="password"
                 autoComplete="new-password"
-                required={!isLogin}
+                required={!isAuth}
                 className="w-full px-3 py-2 mt-1 bg-gray-700 border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-gray-100"
                 value={formData.confirmPassword}
                 onChange={handleInputChange}
@@ -159,7 +156,7 @@ const Login = () => {
             </div>
           )}
 
-          {isLogin && (
+          {isAuth && (
             <div className="flex items-center justify-between">
               <div className="flex items-center">
                 <input
@@ -191,22 +188,22 @@ const Login = () => {
               type="submit"
               className="w-full px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md shadow-sm hover:bg-blue-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-300"
             >
-              {isLogin ? "Sign in" : "Create Account"}
+              {isAuth ? "Sign in" : "Create Account"}
             </button>
           </div>
         </form>
 
         <div className="text-center text-sm text-gray-300">
-          {isLogin ? "Don't have an account?" : "Already have an account?"}{" "}
+          {isAuth ? "Don't have an account?" : "Already have an account?"}{" "}
           <button
             onClick={toggleForm}
             className="font-medium text-blue-400 hover:text-blue-300 transition duration-300"
           >
-            {isLogin ? "Register" : "Login"}
+            {isAuth ? "Register" : "Login"}
           </button>
         </div>
 
-        <div className="relative">
+        {/* <div className="relative">
           <div className="absolute inset-0 flex items-center">
             <div className="w-full border-t border-gray-600"></div>
           </div>
@@ -256,10 +253,10 @@ const Login = () => {
               ></path>
             </svg>
           </button>
-        </div>
+        </div> */}
       </div>
     </div>
   );
 };
 
-export default Login;
+export default Auth;

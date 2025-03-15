@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 
 const About = () => {
-    let url = "http://127.0.0.1:8000/api/users/";
+    let url = "http://192.168.1.114:8000/api/users/";
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const [phone, setPhone] = useState('');

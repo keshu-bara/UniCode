@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router";
+import { Link ,useNavigate } from "react-router";
 import Profile from "../profiles/Profile";
 
 export default function Hero() {
+      const navigate = useNavigate();
       const [displayText, setDisplayText] = useState("");
       const [currentIndex, setCurrentIndex] = useState(0);
       const [isDeleting, setIsDeleting] = useState(false);
@@ -68,16 +69,18 @@ export default function Hero() {
             </div>
           </div>
           <div className="Auth_button w-full flex h-[15%] justify-start px-0.5 mb-8">
-            <Link to="register/">
-              <button className="bg-green-600 rounded-md text-white ml-2 w-auto px-6 py-2 hover:bg-green-500 transition-colors font-medium">
-                Join
-              </button>
-            </Link>
-            <Link to="login/">
-              <button className="bg-gray-700 border border-gray-600 rounded-md text-white ml-4 w-auto px-6 py-2 hover:bg-gray-600 transition-colors font-medium">
-                Login
-              </button>
-            </Link>
+            <button
+              onClick={() => navigate("/auth?button=join")}
+              className="bg-green-600 rounded-md text-white ml-2 w-auto px-6 py-2 hover:bg-green-500 transition-colors font-medium"
+            >
+              Join
+            </button>
+            <button
+              onClick={() => navigate("/auth?button=login")}
+               className="bg-gray-700 border border-gray-600 rounded-md text-white ml-4 w-auto px-6 py-2 hover:bg-gray-600 transition-colors font-medium"
+            >
+              Login
+            </button>
           </div>
 
           <div className="value-props text-gray-300 p-4 bg-gray-900 rounded-lg border border-gray-700 shadow-lg">
