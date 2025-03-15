@@ -4,6 +4,8 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
+from .serializers import ProfilesSerializer
+from .models import Profiles
 
 
 # Create your views here.
@@ -11,8 +13,6 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 class MomentsApi(APIView):
     permission_classes = [IsAuthenticated]
     authentication_classes = [JWTAuthentication]
-
-
     def get(self,request):
         try:
             data = request.data
@@ -33,3 +33,16 @@ class serveron(APIView):
         return Response({
             "message":"developer is coding now"
         },status = status.HTTP_200_OK)
+    
+class ProfilesApi(APIView):
+    def get(self, request):
+        try:
+            profiles = Profiles.objects.all()
+            serializer = ProfilesSerializer(profiles, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except Exception as e:
+            print(e)
+            return Response({
+                'message': 'error in fetching data'
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
