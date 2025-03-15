@@ -3,10 +3,9 @@ from .serializers import RegisterSerializer , LoginSerializer
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-
+# from .serializers import UserSerializer
 
 class RegisterApi(APIView):
-
     def post(self,request):
         try:
             data= request.data
@@ -37,7 +36,6 @@ class LoginApi(APIView):
     def post(self,request):
         try:
             data = request.data
-
             serializer = LoginSerializer(data = data)
             if not serializer.is_valid():
                 return Response({
