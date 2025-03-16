@@ -1,11 +1,13 @@
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
-from .serializers import ProfilesSerializer
-from .models import Profiles
+from rest_framework.parsers import JSONParser, MultiPartParser, FormParser
+
+from .models import Profile, Skill, Project
+from .serializers import ProfileSerializer
 
 
 # Create your views here.
@@ -37,12 +39,54 @@ class serveron(APIView):
 class ProfilesApi(APIView):
     def get(self, request):
         try:
-            profiles = Profiles.objects.all()
-            serializer = ProfilesSerializer(profiles, many=True)
+            profiles = Profile.objects.all()
+            serializer = ProfileSerializer(profiles, many=True)
             return Response(serializer.data, status=status.HTTP_200_OK)
         except Exception as e:
             print(e)
             return Response({
                 'message': 'error in fetching data'
             }, status=status.HTTP_400_BAD_REQUEST)
-        
+
+class ProfileView(APIView):
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [JWTAuthentication]
+    parser_classes = [JSONParser, MultiPartParser, FormParser]  # Support file uploads
+    
+    def get(self, request):
+        """Get the user's profile with skills and projects"""
+        try:
+            profile = get_object_or_404(Profile, user=request.user)
+            serializer = ProfileSerializer(profile, context={'request': request})
+            return Response(serializer.data)
+        except Exception as e:
+            print(f"Error fetching profile: {e}")
+            return Response({
+                'message': 'Error retrieving profile data',
+                'error': str(e)
+            }, status=status.HTTP_400_BAD_REQUEST)
+    
+    def put(self, request):
+        """Update the user's profile including skills and projects"""
+        try:
+            profile = get_object_or_404(Profile, user=request.user)
+            serializer = ProfileSerializer(
+                profile, 
+                data=request.data, 
+                partial=True, 
+                context={'request': request}
+            )
+            
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data)
+            
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            
+        except Exception as e:
+            print(f"Error updating profile: {e}")
+            return Response({
+                'message': 'Error updating profile',
+                'error': str(e)
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
