@@ -35,11 +35,18 @@ export default function ProfileCard() {
   useEffect(() => {
     const fetchProfiles = async () => {
       try {
-        const response = await fetch("http://192.168.1.114:8000/api/home/profiles/");
+        const response = await fetch("http://localhost:8000/api/home/profiles/");
         const data = await response.json();
-
-        if (Array.isArray(data) && data.length > 0) {
-          setProfiles(data);
+        
+        // Check if data is an array (multiple profiles) or a single profile object
+        if (Array.isArray(data)) {
+          // Transform each profile in the array
+          const transformedProfiles = data.map((profile, index) => transformProfileData(profile, index));
+          setProfiles(transformedProfiles.length > 0 ? transformedProfiles : initialProfiles);
+        } else if (data && typeof data === 'object') {
+          // Transform single profile and create an array with it
+          const transformedProfile = transformProfileData(data, 1);
+          setProfiles([transformedProfile]);
         } else {
           setProfiles(initialProfiles);
         }
@@ -47,6 +54,66 @@ export default function ProfileCard() {
         console.error("Error fetching profiles:", error);
         setProfiles(initialProfiles); // Fallback to initial profiles in case of error
       }
+    };
+    
+    // Helper function to transform profile data
+    const transformProfileData = (profileData, index) => {
+      // Parse skills if they are stored as a string
+      let parsedSkills = [];
+      
+      // Handle different formats of skills data
+      if (Array.isArray(profileData.skills)) {
+        // Remove any JSON artifacts like "[" or "]" that might be in the array
+        parsedSkills = profileData.skills
+          .filter(skill => skill !== "[" && skill !== "]" && skill.trim() !== "")
+          .slice(0, 4); // Limit to 4 skills
+        
+        // If skills are still empty but we have the string representation
+        if (parsedSkills.length === 0) {
+          try {
+            // Try to parse the skills from a JSON string if available
+            const skillsStr = profileData.skills.join('');
+            if (skillsStr && skillsStr !== '[]') {
+              parsedSkills = JSON.parse(skillsStr);
+            }
+          } catch (e) {
+            console.log("Could not parse skills", e);
+          }
+        }
+      }
+      
+      // If we still have no skills, provide some defaults based on other profile info
+      if (parsedSkills.length === 0) {
+        if (profileData.leetcode_profile) parsedSkills.push("DSA");
+        if (profileData.github_profile) parsedSkills.push("GitHub");
+        parsedSkills.push("Coding");
+        parsedSkills.push("Development");
+      }
+      
+      // Determine a role based on profile info
+      let role = "Developer";
+      if (profileData.leetcode_profile && !profileData.github_profile) {
+        role = "DSA Enthusiast";
+      } else if (profileData.github_profile && !profileData.leetcode_profile) {
+        role = "Open Source Contributor";
+      } else if (profileData.github_profile && profileData.leetcode_profile) {
+        role = "Full Stack Developer";
+      }
+      
+      // Use username if full_name is not available
+      const name = profileData.full_name || profileData.username || `Developer ${index}`;
+      
+      // Use profile image if available, otherwise default avatar
+      const avatar = profileData.profile_image_url || profileData.profileImageUrl || 
+        `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=random&color=fff`;
+      
+      return {
+        id: profileData.id || index + 1,
+        name: name,
+        role: role,
+        skills: parsedSkills,
+        avatar: avatar,
+      };
     };
 
     fetchProfiles();

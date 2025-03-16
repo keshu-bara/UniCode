@@ -29,7 +29,7 @@ const Dashboard = () => {
   const [saveStatus, setSaveStatus] = useState({ message: "", type: "" });
 
   // API base URL - keep this in one place for easy updates
-  const API_BASE_URL = "http://192.168.1.114:8000/api";
+  const API_BASE_URL = "http://localhost:8000/api";
 
   useEffect(() => {
     // Check if user is logged in

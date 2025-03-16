@@ -46,8 +46,8 @@ const Auth = () => {
     try {
       const response = await fetch(
         isAuth
-          ? "http://192.168.1.114:8000/api/login/"
-          : "http://192.168.1.114:8000/api/register/",
+          ? "http://localhost:8000/api/login/"
+          : "http://localhost:8000/api/register/",
         {
           method: "POST",
           headers: {
