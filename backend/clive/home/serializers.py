@@ -49,12 +49,14 @@ class ProfileSerializer(serializers.ModelSerializer):
     github_profile = serializers.URLField(required=False, allow_blank=True)
     linkedin_profile = serializers.URLField(required=False, allow_blank=True)
     profile_image = serializers.ImageField(required=False)
+    is_public = serializers.BooleanField(required=False)
     
     # CamelCase versions for frontend
     leetCodeProfile = serializers.SerializerMethodField()
     githubProfile = serializers.SerializerMethodField()
     linkedinProfile = serializers.SerializerMethodField()
     profileImageUrl = serializers.SerializerMethodField()
+    isPublic = serializers.BooleanField(source='is_public', required=False)
     
     class Meta:
         model = Profile
@@ -62,7 +64,7 @@ class ProfileSerializer(serializers.ModelSerializer):
             'full_name', 'username', 'email', 'bio', 
             'leetcode_profile', 'github_profile', 'linkedin_profile', 'profile_image',
             'leetCodeProfile', 'githubProfile', 'linkedinProfile', 'profileImageUrl',
-            'skills', 'projects'
+            'skills', 'projects','is_public', 'isPublic'
         ]
     
     def get_full_name(self, obj):
@@ -145,6 +147,10 @@ class ProfileSerializer(serializers.ModelSerializer):
             instance.profile_image = request.FILES['profile_image']
         
         instance.save()
+
+        if 'is_public' in request_data or 'isPublic' in request_data:
+            instance.is_public = request_data.get('is_public', 
+                                      request_data.get('isPublic', True))
         
         # Process skills (array of strings)
         if 'skills' in request_data:

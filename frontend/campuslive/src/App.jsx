@@ -7,6 +7,7 @@ import Test  from './pages/Test'
 import Footer from './components/Footer'
 import { BrowserRouter, Route, Routes } from "react-router"
 import DashBoard from './pages/DashBoard'
+import Ai from './pages/Ai'
 
 
 
@@ -16,23 +17,29 @@ function App() {
   return (
     <>
       <BrowserRouter>
-        <Header />
+        <div className="flex flex-col min-h-screen">
+          <Header />
+          <main className="flex-grow mb-1">
+            {/* Your page content */}
+            <Routes>
+              <Route
+                path="/"
+                element={
+                  <div className="hero">
+                    <Hero />
+                  </div>
+                }
+              />
+              <Route path="auth/" element={<Auth />} />
+              <Route path="about/" element={<About />} />
+              <Route path="Test/" element={<Test />} />
 
-        <Routes>
-          <Route
-            path="/"
-            element={
-              <div className="hero">
-                <Hero />
-              </div>
-            }
-          />
-          <Route path="auth/" element={<Auth />} />
-          <Route path="about/" element={<About />} />
-          <Route path="Test/" element={<Test />} />
-          <Route path="DashBoard/" element={<DashBoard />} />
-        </Routes>
-        <Footer className="relative bottom-0 w-full" />
+              <Route path="Ai/" element={<Ai />} />
+              <Route path="DashBoard/" element={<DashBoard />} />
+            </Routes>
+          </main>
+          <Footer />
+        </div>
       </BrowserRouter>
     </>
   );

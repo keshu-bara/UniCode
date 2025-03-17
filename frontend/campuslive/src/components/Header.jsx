@@ -95,18 +95,18 @@ export default function Header() {
               </li>
               <li className="py-2 md:py-0">
                 <Link
-                  to="/team"
+                  to="/Ai"
                   className="text-white hover:text-sky-500 font-medium transition duration-300"
                 >
-                  Team
+                  AI
                 </Link>
               </li>
               <li className="py-2 md:py-0">
                 <Link
-                  to="/projects"
+                  to="/Dashboard"
                   className="text-white hover:text-sky-500 font-medium transition duration-300"
                 >
-                  Projects
+                  Dashboard
                 </Link>
               </li>
               <li className="py-2 md:py-0">

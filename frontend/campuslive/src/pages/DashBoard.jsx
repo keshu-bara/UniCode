@@ -14,6 +14,7 @@ const Dashboard = () => {
     linkedinProfile: "",
     profileImage: null,
     profileImageUrl: "",
+    is_public: true,
   });
   const [skills, setSkills] = useState([]);
   const [projects, setProjects] = useState([]);
@@ -49,15 +50,62 @@ const Dashboard = () => {
     setLoading(false);
   }, [navigate]);
 
+  // Add this function to refresh the token
+  const refreshAccessToken = async () => {
+    try {
+      const refreshToken = localStorage.getItem("refreshToken");
+      
+      if (!refreshToken) {
+        console.log("No refresh token available");
+        return null;
+      }
+
+      console.log("Attempting to refresh token...");
+
+      const response = await fetch(`${API_BASE_URL}/token/refresh/`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          refresh: refreshToken
+        }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log("Token refreshed successfully");
+        
+        // Store the new access token
+        localStorage.setItem("accessToken", data.access);
+        return data.access;
+      } else {
+        console.log("Failed to refresh token, status:", response.status);
+        // If refresh token is invalid or expired, log the user out
+        handleLogout();
+        return null;
+      }
+    } catch (error) {
+      console.error("Error refreshing token:", error);
+      return null;
+    }
+  };
+
+  // Modify fetchUserProfile to use the refresh mechanism
   const fetchUserProfile = async () => {
     try {
-      const token = localStorage.getItem("accessToken");
-      console.log(
-        "Fetching profile with token:",
-        token?.substring(0, 15) + "..."
-      );
+      let token = localStorage.getItem("accessToken");
+      
+      if (!token) {
+        console.log("No token found, redirecting to login");
+        navigate("/auth");
+        return;
+      }
+      
+      console.log("Fetching profile with token:", token?.substring(0, 15) + "...");
 
-      const response = await fetch(`${API_BASE_URL}/profile/`, {
+      // First attempt with current token
+      let response = await fetch(`${API_BASE_URL}/profile/`, {
         method: "GET",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -67,44 +115,94 @@ const Dashboard = () => {
 
       console.log("Profile API response status:", response.status);
 
+      // If unauthorized, try refreshing the token and retry
+      if (response.status === 401) {
+        console.log("Token expired, attempting to refresh...");
+        const newToken = await refreshAccessToken();
+        
+        if (!newToken) {
+          console.log("Could not refresh token, redirecting to login");
+          navigate("/auth");
+          return;
+        }
+        
+        console.log("Retrying with new token:", newToken.substring(0, 15) + "...");
+        
+        // Retry with new token
+        response = await fetch(`${API_BASE_URL}/profile/`, {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${newToken}`,
+            "Content-Type": "application/json",
+          },
+        });
+        
+        console.log("Retry profile API response status:", response.status);
+      }
+
       if (response.ok) {
         const data = await response.json();
         console.log("Profile data received:", data);
+
+        // Parse skills properly to handle the array with bracket characters
+        let parsedSkills = [];
+        if (Array.isArray(data.skills)) {
+          // Filter out bracket characters and empty strings
+          parsedSkills = data.skills
+            .filter(skill => skill !== "[" && skill !== "]" && skill.trim() !== "");
+            
+          // If the skills array is empty or only contains brackets, check if it might be a string representation
+          if (parsedSkills.length === 0) {
+            try {
+              const skillsStr = data.skills.join('');
+              if (skillsStr && skillsStr !== '[]') {
+                // Try to parse a JSON string if that's how it's stored
+                parsedSkills = JSON.parse(skillsStr);
+              }
+            } catch (e) {
+              console.log("Could not parse skills from joined string:", e);
+            }
+          }
+        }
 
         setUserProfile({
           fullName: data.full_name || "",
           email: data.email || "",
           bio: data.bio || "",
-          leetCodeProfile: data.leetcode_profile || "",
-          githubProfile: data.github_profile || "",
-          linkedinProfile: data.linkedin_profile || "",
-          profileImageUrl: data.profile_image_url || "",
+          leetCodeProfile: data.leetcode_profile || data.leetCodeProfile || "",
+          githubProfile: data.github_profile || data.githubProfile || "",
+          linkedinProfile: data.linkedin_profile || data.linkedinProfile || "",
+          profileImageUrl: data.profile_image_url || data.profileImageUrl || "",
           profileImage: null, // No file object initially
+          is_public: data.is_public !== undefined ? data.is_public : true,
         });
 
-        setSkills(data.skills || []);
+        setSkills(parsedSkills);
         setProjects(data.projects || []);
       } else {
-        console.log(
-          "Profile not found or not accessible:",
-          await response.text()
-        );
-        // Initialize with default empty values
-        setUserProfile({
-          fullName: localStorage.getItem("username") || "",
-          email: "",
-          bio: "",
-          leetCodeProfile: "",
-          githubProfile: "",
-          linkedinProfile: "",
-          profileImageUrl: "",
-          profileImage: null,
-        });
-        setSkills([]);
-        setProjects([]);
+        console.error("Profile API error:", response.status);
+        const errorData = await response.json().catch(() => ({}));
+        console.error("Error details:", errorData);
+        
+        // Handle other error cases
+        if (response.status === 403) {
+          setSaveStatus({
+            message: "You don't have permission to access this profile",
+            type: "error",
+          });
+        } else {
+          setSaveStatus({
+            message: "Failed to load profile",
+            type: "error",
+          });
+        }
       }
     } catch (error) {
       console.error("Error fetching profile:", error);
+      setSaveStatus({
+        message: "Network error. Please try again.",
+        type: "error",
+      });
     }
   };
 
@@ -134,12 +232,19 @@ const Dashboard = () => {
     }
   };
 
+  // Also update handleSaveProfile to use token refresh
   const handleSaveProfile = async () => {
     try {
       setSaveStatus({ message: "Saving...", type: "info" });
-      const token = localStorage.getItem("accessToken");
+      let token = localStorage.getItem("accessToken");
+      
+      if (!token) {
+        setSaveStatus({ message: "Session expired. Please login again.", type: "error" });
+        navigate("/auth");
+        return;
+      }
 
-      // Use FormData to handle file uploads
+      // Create FormData object for sending files
       const formData = new FormData();
       formData.append("full_name", userProfile.fullName);
       formData.append("email", userProfile.email);
@@ -147,10 +252,28 @@ const Dashboard = () => {
       formData.append("leetcode_profile", userProfile.leetCodeProfile);
       formData.append("github_profile", userProfile.githubProfile);
       formData.append("linkedin_profile", userProfile.linkedinProfile);
+      
+      // THIS IS THE KEY FIX:
+      // Convert the boolean to the correct string value the backend expects
+      // Change how is_public is sent to backend
+      const isPublicValue = userProfile.is_public ? "true" : "false";
+      formData.append("is_public", isPublicValue);
+      
+      console.log("Sending is_public as:", isPublicValue);
 
-      // Add skills and projects as JSON strings
-      formData.append("skills", JSON.stringify(skills));
-      formData.append("projects", JSON.stringify(projects));
+      // Fix the skills array
+      // Ensure we don't send empty brackets
+      if (skills.length > 0) {
+        formData.append("skills", JSON.stringify(skills));
+      } else {
+        formData.append("skills", JSON.stringify([]));
+      }
+      
+      if (projects.length > 0) {
+        formData.append("projects", JSON.stringify(projects));
+      } else {
+        formData.append("projects", JSON.stringify([]));
+      }
 
       // Add profile image if selected
       if (userProfile.profileImage) {
@@ -159,16 +282,39 @@ const Dashboard = () => {
 
       console.log("Sending profile data...");
 
-      const response = await fetch(`${API_BASE_URL}/profile/`, {
+      // First attempt with current token
+      let response = await fetch(`${API_BASE_URL}/profile/`, {
         method: "PUT",
         headers: {
           Authorization: `Bearer ${token}`,
-          // Don't set Content-Type for FormData
+          // Don't set Content-Type for FormData - browser will set it automatically with boundary
         },
         body: formData,
       });
 
       console.log("Save response status:", response.status);
+
+      // If unauthorized, try refreshing the token and retry
+      if (response.status === 401) {
+        console.log("Token expired during save, attempting to refresh...");
+        const newToken = await refreshAccessToken();
+        
+        if (!newToken) {
+          setSaveStatus({ message: "Session expired. Please login again.", type: "error" });
+          return;
+        }
+        
+        // Retry with new token
+        response = await fetch(`${API_BASE_URL}/profile/`, {
+          method: "PUT",
+          headers: {
+            Authorization: `Bearer ${newToken}`,
+          },
+          body: formData,
+        });
+        
+        console.log("Retry save response status:", response.status);
+      }
 
       if (response.ok) {
         const responseData = await response.json();
@@ -185,15 +331,22 @@ const Dashboard = () => {
         setIsEditingProfile(false);
         setTimeout(() => setSaveStatus({ message: "", type: "" }), 3000);
       } else {
-        const errorData = await response.json();
-        console.error("API error:", errorData);
+        try {
+          const errorData = await response.json();
+          console.error("API error:", errorData);
 
-        setSaveStatus({
-          message: `Failed to save profile: ${
-            errorData.message || errorData.error || "Unknown error"
-          }`,
-          type: "error",
-        });
+          setSaveStatus({
+            message: `Failed to save profile: ${
+              errorData.message || errorData.error || JSON.stringify(errorData)
+            }`,
+            type: "error",
+          });
+        } catch (e) {
+          setSaveStatus({
+            message: `Failed to save profile: Server error (${response.status})`,
+            type: "error",
+          });
+        }
       }
     } catch (error) {
       console.error("Error saving profile:", error);
@@ -413,6 +566,32 @@ const Dashboard = () => {
                         placeholder="https://leetcode.com/username"
                         className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-md text-white"
                       />
+                    </div>
+                    <div>
+                      <label className="block text-gray-300 mb-1">
+                        Profile Visibility
+                      </label>
+                      <select
+                        name="is_public"
+                        value={userProfile.is_public ? "true" : "false"}
+                        onChange={(e) => {
+                          // Set the boolean value based on the string value
+                          setUserProfile(prev => ({
+                            ...prev,
+                            is_public: e.target.value === "true"
+                          }));
+                          console.log("Changed visibility to:", e.target.value === "true");
+                        }}
+                        className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-md text-white"
+                      >
+                        <option value="true">Public</option>
+                        <option value="false">Private</option>
+                      </select>
+                      <p className="text-xs text-gray-400 mt-1">
+                        {userProfile.is_public 
+                          ? "Your profile will be visible to other users" 
+                          : "Your profile will be private"}
+                      </p>
                     </div>
                     
                     <div>

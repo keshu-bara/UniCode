@@ -39,7 +39,7 @@ class serveron(APIView):
 class ProfilesApi(APIView):
     def get(self, request):
         try:
-            profiles = Profile.objects.all()
+            profiles = Profile.objects.filter(is_public=True)
             serializer = ProfileSerializer(profiles, many=True)
             return Response(serializer.data, status=status.HTTP_200_OK)
         except Exception as e:
