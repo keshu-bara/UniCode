@@ -75,7 +75,9 @@ class ProfileView(APIView):
                 data=request.data, 
                 partial=True, 
                 context={'request': request}
+                
             )
+            print(serializer)
             
             if serializer.is_valid():
                 serializer.save()

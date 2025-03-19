@@ -253,16 +253,12 @@ const Dashboard = () => {
       formData.append("github_profile", userProfile.githubProfile);
       formData.append("linkedin_profile", userProfile.linkedinProfile);
       
-      // THIS IS THE KEY FIX:
-      // Convert the boolean to the correct string value the backend expects
-      // Change how is_public is sent to backend
-      const isPublicValue = userProfile.is_public ? "true" : "false";
-      formData.append("is_public", isPublicValue);
-      
-      console.log("Sending is_public as:", isPublicValue);
+      // FIXED: Send exactly "True" or "False" string for Django
+      const visibilityValue = userProfile.is_public ? "True" : "False";
+      formData.append("is_public", visibilityValue);
+      console.log("Sending is_public as:", visibilityValue);
 
       // Fix the skills array
-      // Ensure we don't send empty brackets
       if (skills.length > 0) {
         formData.append("skills", JSON.stringify(skills));
       } else {
@@ -280,6 +276,12 @@ const Dashboard = () => {
         formData.append("profile_image", userProfile.profileImage);
       }
 
+      // Debug: Log all form data being sent
+      console.log("All form data being sent:");
+      for (let [key, value] of formData.entries()) {
+        console.log(`${key}: ${value}`);
+      }
+
       console.log("Sending profile data...");
 
       // First attempt with current token
@@ -287,7 +289,6 @@ const Dashboard = () => {
         method: "PUT",
         headers: {
           Authorization: `Bearer ${token}`,
-          // Don't set Content-Type for FormData - browser will set it automatically with boundary
         },
         body: formData,
       });
@@ -573,19 +574,19 @@ const Dashboard = () => {
                       </label>
                       <select
                         name="is_public"
-                        value={userProfile.is_public ? "true" : "false"}
+                        value={userProfile.is_public ? "True" : "False"}
                         onChange={(e) => {
                           // Set the boolean value based on the string value
                           setUserProfile(prev => ({
                             ...prev,
-                            is_public: e.target.value === "true"
+                            is_public: e.target.value === "True"
                           }));
-                          console.log("Changed visibility to:", e.target.value === "true");
+                          console.log("Changed visibility to:", e.target.value === "True");
                         }}
                         className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-md text-white"
                       >
-                        <option value="true">Public</option>
-                        <option value="false">Private</option>
+                        <option value="True">Public</option>
+                        <option value="False">Private</option>
                       </select>
                       <p className="text-xs text-gray-400 mt-1">
                         {userProfile.is_public 

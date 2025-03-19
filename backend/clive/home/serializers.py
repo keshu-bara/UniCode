@@ -96,6 +96,8 @@ class ProfileSerializer(serializers.ModelSerializer):
                 return request.build_absolute_uri(obj.profile_image.url)
             return obj.profile_image.url
         return None
+    def get_ispublic(self,obj):
+        return obj.is_public
     
     def get_skills(self, obj):
         return [skill.name for skill in obj.skills.all()]
@@ -146,11 +148,12 @@ class ProfileSerializer(serializers.ModelSerializer):
         if 'profile_image' in request.FILES:
             instance.profile_image = request.FILES['profile_image']
         
-        instance.save()
+        
 
         if 'is_public' in request_data or 'isPublic' in request_data:
             instance.is_public = request_data.get('is_public', 
                                       request_data.get('isPublic', True))
+        instance.save()
         
         # Process skills (array of strings)
         if 'skills' in request_data:
