@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router";
 
 const Auth = () => {
+  const API_KEY = import.meta.env.VITE_API_URL;
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const buttonClicked = searchParams.get("button") || "unknown"; // Read from URL
@@ -46,8 +47,8 @@ const Auth = () => {
     try {
       const response = await fetch(
         isAuth
-          ? "http://localhost:8000/api/login/"
-          : "http://localhost:8000/api/register/",
+          ? `${API_KEY}/api/login/`
+          : `${API_KEY}/api/register/`,
         {
           method: "POST",
           headers: {

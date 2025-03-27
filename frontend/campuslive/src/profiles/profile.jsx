@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 
 export default function ProfileCard() {
+
+  const API_KEY = import.meta.env.VITE_API_URL;
   const initialProfiles = [
     {
       id: 1,
@@ -35,7 +37,7 @@ export default function ProfileCard() {
   useEffect(() => {
     const fetchProfiles = async () => {
       try {
-        const response = await fetch("http://localhost:8000/api/home/profiles/");
+        const response = await fetch(`${API_KEY}/api/home/profiles/`);
         const data = await response.json();
         
         // Check if data is an array (multiple profiles) or a single profile object

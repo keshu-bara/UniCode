@@ -12,6 +12,12 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 
 from pathlib import Path
 import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
+Wifi_IP = os.getenv('Wifi_IP')
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -26,7 +32,7 @@ SECRET_KEY = 'django-insecure-2$-whx(6k=x2*+l2tu5m65k63^=n+(@@4+xhc=7n2pfa=6*9ki
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['127.0.0.1','localhost','192.168.29.56']
+ALLOWED_HOSTS = ['127.0.0.1','localhost','192.168.29.56',f'{Wifi_IP}']
 
 
 # Application definition
@@ -135,12 +141,15 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:5173",
-    "http://127.0.0.1:3000",
-    "http://192.168.1.114:5173",
-    # Add other origins as needed
-]
+# CORS_ALLOWED_ORIGINS = [
+#     "http://localhost:5173",
+#     "http://127.0.0.1:3000",
+#     "http://192.168.1.114:5173",
+#     f"{os.getenv('FRONTEND_URL')}",
+#     f"{os.getenv('Wifi_URL')}"
+    
+# ]
+CORS_ALLOW_ALL_ORIGINS = True
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (

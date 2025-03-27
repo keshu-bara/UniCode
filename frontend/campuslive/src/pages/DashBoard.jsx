@@ -5,6 +5,7 @@ import { HiOutlineDocumentDuplicate } from "react-icons/hi";
 import { RiLockLine, RiLockUnlockLine } from "react-icons/ri";
 
 const Dashboard = () => {
+  const API_KEY = import.meta.env.VITE_API_URL;
   const navigate = useNavigate();
   const [username, setUsername] = useState("");
   const [loading, setLoading] = useState(true);
@@ -36,7 +37,7 @@ const Dashboard = () => {
 
   // API base URL - keep this in one place for easy updates
   const apiBaseUrl = import.meta.env.VITE_API_URL;
-  const API_BASE_URL = "http://localhost:8000/api";
+  const API_BASE_URL = `${API_KEY}/api`;
 
   useEffect(() => {
     // Check if user is logged in
