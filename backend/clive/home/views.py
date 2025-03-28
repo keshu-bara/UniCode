@@ -5,7 +5,7 @@ from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.parsers import JSONParser, MultiPartParser, FormParser
-
+from django.core.paginator import Paginator
 from .models import Profile, Skill, Project
 from .serializers import ProfileSerializer
 
@@ -35,11 +35,12 @@ class serveron(APIView):
         return Response({
             "message":"developer is coding now"
         },status = status.HTTP_200_OK)
-    
+#this will show the public profiles at the home page 
 class ProfilesApi(APIView):
     def get(self, request):
         try:
-            profiles = Profile.objects.filter(is_public=True)
+            profiles = Profile.objects.filter(is_public=True).order_by('?')[:3]#using order_by to randomize the profiles
+            # limiting the fetched profile to 2 at a time
             serializer = ProfileSerializer(profiles, many=True)
             return Response(serializer.data, status=status.HTTP_200_OK)
         except Exception as e:
