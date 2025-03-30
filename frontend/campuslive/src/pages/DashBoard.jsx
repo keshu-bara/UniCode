@@ -3,8 +3,77 @@ import { useNavigate } from "react-router";
 import { FaGithub, FaLinkedin, FaCode, FaLaptopCode, FaBriefcase, FaTrophy } from "react-icons/fa";
 import { HiOutlineDocumentDuplicate } from "react-icons/hi";
 import { RiLockLine, RiLockUnlockLine } from "react-icons/ri";
+import QuickStats from "./DashBoard/QuickStats";
+import LeetCodeStats from "./DashBoard/LeetCodeStats";
 
 const Dashboard = () => {
+  //leetcode solved problems stats
+  const [leetCodeStats, setLeetCodeStats] = useState({ solved: 0 });
+  // Update the fetchLeetCodeStats function
+  const fetchLeetCodeStats = async (leetCodeUrl) => {
+    if (!leetCodeUrl) return;
+
+    try {
+      // Extract username from LeetCode URL
+      const urlParts = leetCodeUrl.split("/");
+      const leetCodeUsername =
+        urlParts[urlParts.length - 1] || urlParts[urlParts.length - 2];
+
+      if (!leetCodeUsername) return;
+
+      console.log("Fetching LeetCode stats for:", leetCodeUsername);
+
+      // Make the API call
+      const response = await fetch(
+        `https://leetcode-stats-api.herokuapp.com/${leetCodeUsername}`
+      );
+
+      if (!response.ok) {
+        throw new Error(`API returned status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log("LeetCode API response:", data);
+
+      if (data) {
+        // Set all the stats we need for the detailed view
+        setLeetCodeStats({
+          solved: data.totalSolved || 0,
+          totalSolved: data.totalSolved || 0,
+          totalQuestions: data.totalQuestions || 0,
+          easySolved: data.easySolved || 0,
+          totalEasy: data.totalEasy || 0,
+          mediumSolved: data.mediumSolved || 0,
+          totalMedium: data.totalMedium || 0,
+          hardSolved: data.hardSolved || 0,
+          totalHard: data.totalHard || 0,
+          acceptanceRate: data.acceptanceRate || 0,
+          ranking: data.ranking || 0,
+          contributionPoints: data.contributionPoints || 0,
+          reputation: data.reputation || 0,
+        });
+      }
+    } catch (error) {
+      console.error("Error fetching LeetCode stats:", error);
+      // Set default values in case of error
+      setLeetCodeStats({
+        solved: 0,
+        totalSolved: 0,
+        totalQuestions: 0,
+        easySolved: 0,
+        totalEasy: 0,
+        mediumSolved: 0,
+        totalMedium: 0,
+        hardSolved: 0,
+        totalHard: 0,
+        acceptanceRate: 0,
+        ranking: 0,
+        contributionPoints: 0,
+        reputation: 0,
+      });
+    }
+  };
+
   const API_KEY = import.meta.env.VITE_API_URL;
   const navigate = useNavigate();
   const [username, setUsername] = useState("");
@@ -21,6 +90,7 @@ const Dashboard = () => {
     profileImageUrl: "",
     is_public: true,
   });
+
   const [skills, setSkills] = useState([]);
   const [projects, setProjects] = useState([]);
   const [newSkill, setNewSkill] = useState("");
@@ -56,28 +126,34 @@ const Dashboard = () => {
 
     setLoading(false);
   }, [navigate]);
+  useEffect(() => {
+    if (userProfile.leetCodeProfile) {
+      fetchLeetCodeStats(userProfile.leetCodeProfile);
+    }
+  }, [userProfile.leetCodeProfile]);
 
   // Add this function to fetch GitHub stats if a GitHub profile is provided
   const fetchGitHubStats = async (githubUrl) => {
     if (!githubUrl) return null;
-    
+
     try {
       // Extract username from GitHub URL
-      const urlParts = githubUrl.split('/');
-      const githubUsername = urlParts[urlParts.length - 1] || urlParts[urlParts.length - 2];
-      
+      const urlParts = githubUrl.split("/");
+      const githubUsername =
+        urlParts[urlParts.length - 1] || urlParts[urlParts.length - 2];
+
       if (!githubUsername) return null;
-      
+
       // This would be replaced with an actual API call to your backend
       // that proxies GitHub API requests to avoid CORS and rate limits
       // For now, we'll mock some data
-      
+
       return {
         repos: Math.floor(Math.random() * 20) + 5,
         stars: Math.floor(Math.random() * 100) + 10,
         contributions: Math.floor(Math.random() * 1000) + 200,
         followers: Math.floor(Math.random() * 50) + 5,
-        username: githubUsername
+        username: githubUsername,
       };
     } catch (error) {
       console.error("Error fetching GitHub stats:", error);
@@ -89,7 +165,7 @@ const Dashboard = () => {
   const refreshAccessToken = async () => {
     try {
       const refreshToken = localStorage.getItem("refreshToken");
-      
+
       if (!refreshToken) {
         console.log("No refresh token available");
         return null;
@@ -103,14 +179,14 @@ const Dashboard = () => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          refresh: refreshToken
+          refresh: refreshToken,
         }),
       });
 
       if (response.ok) {
         const data = await response.json();
         console.log("Token refreshed successfully");
-        
+
         // Store the new access token
         localStorage.setItem("accessToken", data.access);
         return data.access;
@@ -130,14 +206,17 @@ const Dashboard = () => {
   const fetchUserProfile = async () => {
     try {
       let token = localStorage.getItem("accessToken");
-      
+
       if (!token) {
         console.log("No token found, redirecting to login");
         navigate("/auth");
         return;
       }
-      
-      console.log("Fetching profile with token:", token?.substring(0, 15) + "...");
+
+      console.log(
+        "Fetching profile with token:",
+        token?.substring(0, 15) + "..."
+      );
 
       // First attempt with current token
       let response = await fetch(`${API_BASE_URL}/profile/`, {
@@ -154,15 +233,18 @@ const Dashboard = () => {
       if (response.status === 401) {
         console.log("Token expired, attempting to refresh...");
         const newToken = await refreshAccessToken();
-        
+
         if (!newToken) {
           console.log("Could not refresh token, redirecting to login");
           navigate("/auth");
           return;
         }
-        
-        console.log("Retrying with new token:", newToken.substring(0, 15) + "...");
-        
+
+        console.log(
+          "Retrying with new token:",
+          newToken.substring(0, 15) + "..."
+        );
+
         // Retry with new token
         response = await fetch(`${API_BASE_URL}/profile/`, {
           method: "GET",
@@ -171,7 +253,7 @@ const Dashboard = () => {
             "Content-Type": "application/json",
           },
         });
-        
+
         console.log("Retry profile API response status:", response.status);
       }
 
@@ -183,14 +265,15 @@ const Dashboard = () => {
         let parsedSkills = [];
         if (Array.isArray(data.skills)) {
           // Filter out bracket characters and empty strings
-          parsedSkills = data.skills
-            .filter(skill => skill !== "[" && skill !== "]" && skill.trim() !== "");
-            
+          parsedSkills = data.skills.filter(
+            (skill) => skill !== "[" && skill !== "]" && skill.trim() !== ""
+          );
+
           // If the skills array is empty or only contains brackets, check if it might be a string representation
           if (parsedSkills.length === 0) {
             try {
-              const skillsStr = data.skills.join('');
-              if (skillsStr && skillsStr !== '[]') {
+              const skillsStr = data.skills.join("");
+              if (skillsStr && skillsStr !== "[]") {
                 // Try to parse a JSON string if that's how it's stored
                 parsedSkills = JSON.parse(skillsStr);
               }
@@ -215,7 +298,7 @@ const Dashboard = () => {
         setUserProfile(updatedProfile);
         setSkills(parsedSkills);
         setProjects(data.projects || []);
-        
+
         // Fetch GitHub stats if GitHub profile is provided
         if (updatedProfile.githubProfile) {
           const stats = await fetchGitHubStats(updatedProfile.githubProfile);
@@ -225,7 +308,7 @@ const Dashboard = () => {
         console.error("Profile API error:", response.status);
         const errorData = await response.json().catch(() => ({}));
         console.error("Error details:", errorData);
-        
+
         // Handle other error cases
         if (response.status === 403) {
           setSaveStatus({
@@ -250,7 +333,7 @@ const Dashboard = () => {
 
   // All other existing functions remain the same
   // handleLogout, handleProfileChange, handleImageChange, handleSaveProfile, etc.
-  
+
   const handleLogout = () => {
     localStorage.removeItem("accessToken");
     localStorage.removeItem("refreshToken");
@@ -281,9 +364,12 @@ const Dashboard = () => {
     try {
       setSaveStatus({ message: "Saving...", type: "info" });
       let token = localStorage.getItem("accessToken");
-      
+
       if (!token) {
-        setSaveStatus({ message: "Session expired. Please login again.", type: "error" });
+        setSaveStatus({
+          message: "Session expired. Please login again.",
+          type: "error",
+        });
         navigate("/auth");
         return;
       }
@@ -296,7 +382,7 @@ const Dashboard = () => {
       formData.append("leetcode_profile", userProfile.leetCodeProfile);
       formData.append("github_profile", userProfile.githubProfile);
       formData.append("linkedin_profile", userProfile.linkedinProfile);
-      
+
       // FIXED: Send exactly "True" or "False" string for Django
       const visibilityValue = userProfile.is_public ? "True" : "False";
       formData.append("is_public", visibilityValue);
@@ -308,7 +394,7 @@ const Dashboard = () => {
       } else {
         formData.append("skills", JSON.stringify([]));
       }
-      
+
       if (projects.length > 0) {
         formData.append("projects", JSON.stringify(projects));
       } else {
@@ -337,12 +423,15 @@ const Dashboard = () => {
       if (response.status === 401) {
         console.log("Token expired during save, attempting to refresh...");
         const newToken = await refreshAccessToken();
-        
+
         if (!newToken) {
-          setSaveStatus({ message: "Session expired. Please login again.", type: "error" });
+          setSaveStatus({
+            message: "Session expired. Please login again.",
+            type: "error",
+          });
           return;
         }
-        
+
         // Retry with new token
         response = await fetch(`${API_BASE_URL}/profile/`, {
           method: "PUT",
@@ -351,7 +440,7 @@ const Dashboard = () => {
           },
           body: formData,
         });
-        
+
         console.log("Retry save response status:", response.status);
       }
 
@@ -508,7 +597,9 @@ const Dashboard = () => {
                   </div>
                 )}
               </div>
-              <h2 className="text-lg font-semibold">{userProfile.fullName || username}</h2>
+              <h2 className="text-lg font-semibold">
+                {userProfile.fullName || username}
+              </h2>
               <div className="text-sm text-gray-400 mt-1 flex items-center">
                 {userProfile.is_public ? (
                   <>
@@ -520,11 +611,11 @@ const Dashboard = () => {
                   </>
                 )}
               </div>
-              
+
               {/* Social Links */}
               <div className="flex space-x-3 mt-3">
                 {userProfile.githubProfile && (
-                  <a 
+                  <a
                     href={userProfile.githubProfile}
                     target="_blank"
                     rel="noopener noreferrer"
@@ -534,7 +625,7 @@ const Dashboard = () => {
                   </a>
                 )}
                 {userProfile.linkedinProfile && (
-                  <a 
+                  <a
                     href={userProfile.linkedinProfile}
                     target="_blank"
                     rel="noopener noreferrer"
@@ -545,49 +636,59 @@ const Dashboard = () => {
                 )}
               </div>
             </div>
-            
+
             <div className="space-y-1 mt-8">
               {/* Navigation Links */}
-              <button 
+              <button
                 onClick={() => setActiveTab("profile")}
                 className={`w-full text-left px-4 py-3 rounded-lg transition duration-300 ${
-                  activeTab === "profile" ? "bg-gray-700 text-white" : "text-gray-400 hover:bg-gray-700/50"
+                  activeTab === "profile"
+                    ? "bg-gray-700 text-white"
+                    : "text-gray-400 hover:bg-gray-700/50"
                 } flex items-center`}
               >
                 <HiOutlineDocumentDuplicate className="mr-2" />
                 Profile
               </button>
-              <button 
+              <button
                 onClick={() => setActiveTab("skills")}
                 className={`w-full text-left px-4 py-3 rounded-lg transition duration-300 ${
-                  activeTab === "skills" ? "bg-gray-700 text-white" : "text-gray-400 hover:bg-gray-700/50"
+                  activeTab === "skills"
+                    ? "bg-gray-700 text-white"
+                    : "text-gray-400 hover:bg-gray-700/50"
                 } flex items-center`}
               >
                 <FaCode className="mr-2" />
                 Skills
               </button>
-              <button 
+              <button
                 onClick={() => setActiveTab("projects")}
                 className={`w-full text-left px-4 py-3 rounded-lg transition duration-300 ${
-                  activeTab === "projects" ? "bg-gray-700 text-white" : "text-gray-400 hover:bg-gray-700/50"
+                  activeTab === "projects"
+                    ? "bg-gray-700 text-white"
+                    : "text-gray-400 hover:bg-gray-700/50"
                 } flex items-center`}
               >
                 <FaLaptopCode className="mr-2" />
                 Projects
               </button>
-              <button 
+              <button
                 onClick={() => setActiveTab("github")}
                 className={`w-full text-left px-4 py-3 rounded-lg transition duration-300 ${
-                  activeTab === "github" ? "bg-gray-700 text-white" : "text-gray-400 hover:bg-gray-700/50"
+                  activeTab === "github"
+                    ? "bg-gray-700 text-white"
+                    : "text-gray-400 hover:bg-gray-700/50"
                 } flex items-center`}
               >
                 <FaGithub className="mr-2" />
                 GitHub Stats
               </button>
-              <button 
+              <button
                 onClick={() => setActiveTab("leetcode")}
                 className={`w-full text-left px-4 py-3 rounded-lg transition duration-300 ${
-                  activeTab === "leetcode" ? "bg-gray-700 text-white" : "text-gray-400 hover:bg-gray-700/50"
+                  activeTab === "leetcode"
+                    ? "bg-gray-700 text-white"
+                    : "text-gray-400 hover:bg-gray-700/50"
                 } flex items-center`}
               >
                 <FaTrophy className="mr-2" />
@@ -651,7 +752,7 @@ const Dashboard = () => {
                             Change Photo
                           </label>
                         </div>
-                        
+
                         <div>
                           <label className="block text-gray-300 mb-1">
                             Full Name
@@ -665,7 +766,9 @@ const Dashboard = () => {
                           />
                         </div>
                         <div>
-                          <label className="block text-gray-300 mb-1">Email</label>
+                          <label className="block text-gray-300 mb-1">
+                            Email
+                          </label>
                           <input
                             type="email"
                             name="email"
@@ -674,7 +777,7 @@ const Dashboard = () => {
                             className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-md text-white"
                           />
                         </div>
-                        
+
                         {/* Social profiles */}
                         <div>
                           <label className="block text-gray-300 mb-1">
@@ -690,7 +793,7 @@ const Dashboard = () => {
                             className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-md text-white"
                           />
                         </div>
-                        
+
                         <div>
                           <label className="block text-gray-300 mb-1">
                             <FaLinkedin className="inline mr-2" />
@@ -705,7 +808,7 @@ const Dashboard = () => {
                             className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-md text-white"
                           />
                         </div>
-                        
+
                         <div>
                           <label className="block text-gray-300 mb-1">
                             <FaTrophy className="inline mr-2" />
@@ -728,9 +831,9 @@ const Dashboard = () => {
                             name="is_public"
                             value={userProfile.is_public ? "True" : "False"}
                             onChange={(e) => {
-                              setUserProfile(prev => ({
+                              setUserProfile((prev) => ({
                                 ...prev,
-                                is_public: e.target.value === "True"
+                                is_public: e.target.value === "True",
                               }));
                             }}
                             className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-md text-white"
@@ -739,14 +842,16 @@ const Dashboard = () => {
                             <option value="False">Private</option>
                           </select>
                           <p className="text-xs text-gray-400 mt-1">
-                            {userProfile.is_public 
-                              ? "Your profile will be visible to other users" 
+                            {userProfile.is_public
+                              ? "Your profile will be visible to other users"
                               : "Your profile will be private"}
                           </p>
                         </div>
-                        
+
                         <div>
-                          <label className="block text-gray-300 mb-1">Bio</label>
+                          <label className="block text-gray-300 mb-1">
+                            Bio
+                          </label>
                           <textarea
                             name="bio"
                             value={userProfile.bio}
@@ -755,7 +860,7 @@ const Dashboard = () => {
                             rows="4"
                           ></textarea>
                         </div>
-                        
+
                         <div className="flex flex-wrap gap-2">
                           <button
                             onClick={handleSaveProfile}
@@ -774,8 +879,10 @@ const Dashboard = () => {
                     </>
                   ) : (
                     <>
-                      <h2 className="text-xl font-semibold mb-4">Your Profile</h2>
-                      
+                      <h2 className="text-xl font-semibold mb-4">
+                        Your Profile
+                      </h2>
+
                       {/* Add profile image display */}
                       <div className="flex justify-center mb-4">
                         <div className="w-20 h-20 rounded-full overflow-hidden bg-gray-700 flex items-center justify-center">
@@ -792,7 +899,7 @@ const Dashboard = () => {
                           )}
                         </div>
                       </div>
-                      
+
                       <div className="space-y-3">
                         <div className="flex justify-between">
                           <span className="text-gray-400">Username:</span>
@@ -801,20 +908,26 @@ const Dashboard = () => {
                         {userProfile.fullName && (
                           <div className="flex justify-between">
                             <span className="text-gray-400">Full Name:</span>
-                            <span className="text-right">{userProfile.fullName}</span>
+                            <span className="text-right">
+                              {userProfile.fullName}
+                            </span>
                           </div>
                         )}
                         {userProfile.email && (
                           <div className="flex justify-between">
                             <span className="text-gray-400">Email:</span>
-                            <span className="text-right">{userProfile.email}</span>
+                            <span className="text-right">
+                              {userProfile.email}
+                            </span>
                           </div>
                         )}
                         <div className="flex justify-between">
                           <span className="text-gray-400">Member Since:</span>
-                          <span className="text-right">{new Date().toLocaleDateString()}</span>
+                          <span className="text-right">
+                            {new Date().toLocaleDateString()}
+                          </span>
                         </div>
-                        
+
                         {/* Social profiles */}
                         {userProfile.githubProfile && (
                           <div className="flex justify-between items-center">
@@ -831,7 +944,7 @@ const Dashboard = () => {
                             </a>
                           </div>
                         )}
-                        
+
                         {userProfile.linkedinProfile && (
                           <div className="flex justify-between items-center">
                             <span className="text-gray-400 flex items-center">
@@ -847,7 +960,7 @@ const Dashboard = () => {
                             </a>
                           </div>
                         )}
-                        
+
                         {userProfile.leetCodeProfile && (
                           <div className="flex justify-between items-center">
                             <span className="text-gray-400 flex items-center">
@@ -863,10 +976,12 @@ const Dashboard = () => {
                             </a>
                           </div>
                         )}
-                        
+
                         {userProfile.bio && (
                           <div>
-                            <span className="text-gray-400 block mb-1">Bio:</span>
+                            <span className="text-gray-400 block mb-1">
+                              Bio:
+                            </span>
                             <p className="text-sm text-gray-300 bg-gray-800/50 p-3 rounded">
                               {userProfile.bio}
                             </p>
@@ -884,40 +999,12 @@ const Dashboard = () => {
                 </div>
 
                 {/* Quick Stats Section */}
-                <div className="bg-gray-700/50 p-6 rounded-lg border border-gray-600">
-                  <h2 className="text-xl font-semibold mb-4">Quick Stats</h2>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="bg-gray-800/50 p-4 rounded-lg text-center">
-                      <div className="text-2xl font-bold">{projects.length}</div>
-                      <div className="text-sm text-gray-400">Projects</div>
-                    </div>
-                    <div className="bg-gray-800/50 p-4 rounded-lg text-center">
-                      <div className="text-2xl font-bold">{skills.length}</div>
-                      <div className="text-sm text-gray-400">Skills</div>
-                    </div>
-                    <div className="bg-gray-800/50 p-4 rounded-lg text-center">
-                      <div className="text-2xl font-bold">
-                        {userProfile.githubProfile ? 1 : 0}
-                      </div>
-                      <div className="text-sm text-gray-400">GitHub</div>
-                    </div>
-                    <div className="bg-gray-800/50 p-4 rounded-lg text-center">
-                      <div className="text-2xl font-bold">
-                        {userProfile.leetCodeProfile ? 1 : 0}
-                      </div>
-                      <div className="text-sm text-gray-400">LeetCode</div>
-                    </div>
-                  </div>
-                  
-                  {/* Connect profiles prompt */}
-                  {(!userProfile.githubProfile || !userProfile.linkedinProfile || !userProfile.leetCodeProfile) && (
-                    <div className="mt-4 p-3 bg-blue-600/30 rounded-lg text-sm">
-                      <p>
-                        💡 Tip: Connect your developer profiles to showcase your skills!
-                      </p>
-                    </div>
-                  )}
-                </div>
+                <QuickStats
+                  skills={skills}
+                  projects={projects}
+                  userProfile={userProfile}
+                  leetCodeStats={leetCodeStats}
+                ></QuickStats>
               </div>
             </div>
           )}
@@ -1095,7 +1182,8 @@ const Dashboard = () => {
                 </div>
               ) : (
                 <p className="text-gray-400 text-sm italic">
-                  No projects added yet. Click "Add Project" to showcase your work!
+                  No projects added yet. Click "Add Project" to showcase your
+                  work!
                 </p>
               )}
             </div>
@@ -1111,34 +1199,42 @@ const Dashboard = () => {
                       <div className="flex justify-center mb-2">
                         <FaCodeBranch className="text-green-500" size={24} />
                       </div>
-                      <div className="text-2xl font-bold">{gitHubStats.repos}</div>
+                      <div className="text-2xl font-bold">
+                        {gitHubStats.repos}
+                      </div>
                       <div className="text-sm text-gray-400">Repositories</div>
                     </div>
                     <div className="bg-gray-800/50 p-4 rounded-lg text-center">
                       <div className="flex justify-center mb-2">
                         <FaStar className="text-yellow-500" size={24} />
                       </div>
-                      <div className="text-2xl font-bold">{gitHubStats.stars}</div>
+                      <div className="text-2xl font-bold">
+                        {gitHubStats.stars}
+                      </div>
                       <div className="text-sm text-gray-400">Stars</div>
                     </div>
                     <div className="bg-gray-800/50 p-4 rounded-lg text-center">
                       <div className="flex justify-center mb-2">
                         <FaCode className="text-blue-500" size={24} />
                       </div>
-                      <div className="text-2xl font-bold">{gitHubStats.contributions}</div>
+                      <div className="text-2xl font-bold">
+                        {gitHubStats.contributions}
+                      </div>
                       <div className="text-sm text-gray-400">Contributions</div>
                     </div>
                     <div className="bg-gray-800/50 p-4 rounded-lg text-center">
                       <div className="flex justify-center mb-2">
                         <FaUsers className="text-purple-500" size={24} />
                       </div>
-                      <div className="text-2xl font-bold">{gitHubStats.followers}</div>
+                      <div className="text-2xl font-bold">
+                        {gitHubStats.followers}
+                      </div>
                       <div className="text-sm text-gray-400">Followers</div>
                     </div>
                   </div>
-                  
+
                   <div className="mt-6 text-center">
-                    <a 
+                    <a
                       href={userProfile.githubProfile}
                       target="_blank"
                       rel="noopener noreferrer"
@@ -1152,7 +1248,8 @@ const Dashboard = () => {
                 <div className="bg-gray-800/50 p-6 rounded-lg border border-gray-600 text-center">
                   <FaGithub className="mx-auto text-gray-600 mb-3" size={48} />
                   <p className="text-gray-400 text-sm italic mb-4">
-                    No GitHub profile connected. Edit your profile to add your GitHub URL.
+                    No GitHub profile connected. Edit your profile to add your
+                    GitHub URL.
                   </p>
                   <button
                     onClick={() => setIsEditingProfile(true)}
@@ -1166,45 +1263,11 @@ const Dashboard = () => {
           )}
 
           {activeTab === "leetcode" && (
-            <div className="bg-gray-800/50 rounded-lg shadow-lg p-6 border border-gray-700">
-              <h2 className="text-xl font-semibold mb-4">DSA Practice</h2>
-              {userProfile.leetCodeProfile ? (
-                <div className="bg-gray-800/50 p-4 rounded-lg border border-gray-600">
-                  <div className="flex flex-col sm:flex-row items-start sm:items-center sm:justify-between">
-                    <div className="mb-3 sm:mb-0">
-                      <h3 className="font-medium">LeetCode Profile</h3>
-                      <p className="text-sm text-gray-400 mt-1">
-                        Track your DSA progress with your linked LeetCode account
-                      </p>
-                    </div>
-                    <a
-                      href={userProfile.leetCodeProfile}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="px-4 py-2 bg-orange-600 hover:bg-orange-700 rounded transition duration-300 text-sm font-medium"
-                    >
-                      View Profile
-                    </a>
-                  </div>
-                </div>
-              ) : (
-                <div className="bg-gray-800/50 p-4 rounded-lg border border-gray-600">
-                  <h3 className="font-medium mb-2">
-                    Connect Your LeetCode Profile
-                  </h3>
-                  <p className="text-gray-300 text-sm mb-4">
-                    Showcase your problem-solving skills by linking your LeetCode
-                    profile. Edit your profile to add your LeetCode URL.
-                  </p>
-                  <button
-                    onClick={() => setIsEditingProfile(true)}
-                    className="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded transition duration-300 text-sm"
-                  >
-                    Connect LeetCode
-                  </button>
-                </div>
-              )}
-            </div>
+            <LeetCodeStats
+              leetCodeStats={leetCodeStats}
+              userProfile={userProfile}
+              setIsEditingProfile={setIsEditingProfile}
+            />
           )}
         </main>
       </div>
