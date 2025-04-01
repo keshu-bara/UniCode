@@ -5,10 +5,13 @@ import { HiOutlineDocumentDuplicate } from "react-icons/hi";
 import { RiLockLine, RiLockUnlockLine } from "react-icons/ri";
 import QuickStats from "./DashBoard/QuickStats";
 import LeetCodeStats from "./DashBoard/LeetCodeStats";
+import GithubStats, { GithubStatsCompact } from "./DashBoard/GithubStats";
 
 const Dashboard = () => {
   //leetcode solved problems stats
   const [leetCodeStats, setLeetCodeStats] = useState({ solved: 0 });
+  //github stats
+  const [gitHubStats, setGitHubStats] = useState(null);
   // Update the fetchLeetCodeStats function
   const fetchLeetCodeStats = async (leetCodeUrl) => {
     if (!leetCodeUrl) return;
@@ -103,7 +106,7 @@ const Dashboard = () => {
     demoUrl: "",
   });
   const [saveStatus, setSaveStatus] = useState({ message: "", type: "" });
-  const [gitHubStats, setGitHubStats] = useState(null);
+  
 
   // API base URL - keep this in one place for easy updates
   const apiBaseUrl = import.meta.env.VITE_API_URL;
@@ -132,6 +135,17 @@ const Dashboard = () => {
     }
   }, [userProfile.leetCodeProfile]);
 
+  useEffect(() => {
+    const fetchStats = async () => {
+      if (userProfile.githubProfile) {
+        const stats = await fetchGitHubStats(userProfile.githubProfile);
+        setGitHubStats(stats);
+      }
+    };
+    
+    fetchStats();
+  }, [userProfile.githubProfile]);
+
   // Add this function to fetch GitHub stats if a GitHub profile is provided
   const fetchGitHubStats = async (githubUrl) => {
     if (!githubUrl) return null;
@@ -139,21 +153,39 @@ const Dashboard = () => {
     try {
       // Extract username from GitHub URL
       const urlParts = githubUrl.split("/");
-      const githubUsername =
+      const githubUsername = 
         urlParts[urlParts.length - 1] || urlParts[urlParts.length - 2];
 
       if (!githubUsername) return null;
 
-      // This would be replaced with an actual API call to your backend
-      // that proxies GitHub API requests to avoid CORS and rate limits
-      // For now, we'll mock some data
+      console.log("Fetching GitHub stats for:", githubUsername);
 
+      // Public GitHub API endpoint - no authentication required for basic public data
+      const response = await fetch(`https://api.github.com/users/${githubUsername}`);
+      
+      if (!response.ok) {
+        throw new Error(`GitHub API returned status: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      console.log("GitHub user data:", data);
+      
+      // Just extract the fields we need from the public API
       return {
-        repos: Math.floor(Math.random() * 20) + 5,
-        stars: Math.floor(Math.random() * 100) + 10,
-        contributions: Math.floor(Math.random() * 1000) + 200,
-        followers: Math.floor(Math.random() * 50) + 5,
         username: githubUsername,
+        repos: data.public_repos || 0,
+        followers: data.followers || 0,
+        following: data.following || 0,
+        avatarUrl: data.avatar_url,
+        profileUrl: data.html_url,
+        bio: data.bio,
+        company: data.company,
+        location: data.location,
+        name: data.name,
+        // These URLs can be used directly in <img> tags
+        statsCardUrl: `https://github-readme-stats.vercel.app/api?username=${githubUsername}&show_icons=true&theme=dark&hide_border=true&count_private=true`,
+        topLangsUrl: `https://github-readme-stats.vercel.app/api/top-langs/?username=${githubUsername}&layout=compact&theme=dark&hide_border=true`,
+        streakStatsUrl: `https://github-readme-streak-stats.herokuapp.com/?user=${githubUsername}&theme=dark&hide_border=true`
       };
     } catch (error) {
       console.error("Error fetching GitHub stats:", error);
@@ -1004,6 +1036,8 @@ const Dashboard = () => {
                   projects={projects}
                   userProfile={userProfile}
                   leetCodeStats={leetCodeStats}
+                  setActiveTab={setActiveTab}
+                  gitHubStats={gitHubStats}  // Also make sure to pass this prop
                 ></QuickStats>
               </div>
             </div>
@@ -1190,76 +1224,11 @@ const Dashboard = () => {
           )}
 
           {activeTab === "github" && (
-            <div className="bg-gray-800/50 rounded-lg shadow-lg p-6 border border-gray-700">
-              <h2 className="text-xl font-semibold mb-4">GitHub Stats</h2>
-              {gitHubStats ? (
-                <div>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-4">
-                    <div className="bg-gray-800/50 p-4 rounded-lg text-center">
-                      <div className="flex justify-center mb-2">
-                        <FaCodeBranch className="text-green-500" size={24} />
-                      </div>
-                      <div className="text-2xl font-bold">
-                        {gitHubStats.repos}
-                      </div>
-                      <div className="text-sm text-gray-400">Repositories</div>
-                    </div>
-                    <div className="bg-gray-800/50 p-4 rounded-lg text-center">
-                      <div className="flex justify-center mb-2">
-                        <FaStar className="text-yellow-500" size={24} />
-                      </div>
-                      <div className="text-2xl font-bold">
-                        {gitHubStats.stars}
-                      </div>
-                      <div className="text-sm text-gray-400">Stars</div>
-                    </div>
-                    <div className="bg-gray-800/50 p-4 rounded-lg text-center">
-                      <div className="flex justify-center mb-2">
-                        <FaCode className="text-blue-500" size={24} />
-                      </div>
-                      <div className="text-2xl font-bold">
-                        {gitHubStats.contributions}
-                      </div>
-                      <div className="text-sm text-gray-400">Contributions</div>
-                    </div>
-                    <div className="bg-gray-800/50 p-4 rounded-lg text-center">
-                      <div className="flex justify-center mb-2">
-                        <FaUsers className="text-purple-500" size={24} />
-                      </div>
-                      <div className="text-2xl font-bold">
-                        {gitHubStats.followers}
-                      </div>
-                      <div className="text-sm text-gray-400">Followers</div>
-                    </div>
-                  </div>
-
-                  <div className="mt-6 text-center">
-                    <a
-                      href={userProfile.githubProfile}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded transition duration-300"
-                    >
-                      <FaGithub className="mr-2" /> View Full GitHub Profile
-                    </a>
-                  </div>
-                </div>
-              ) : (
-                <div className="bg-gray-800/50 p-6 rounded-lg border border-gray-600 text-center">
-                  <FaGithub className="mx-auto text-gray-600 mb-3" size={48} />
-                  <p className="text-gray-400 text-sm italic mb-4">
-                    No GitHub profile connected. Edit your profile to add your
-                    GitHub URL.
-                  </p>
-                  <button
-                    onClick={() => setIsEditingProfile(true)}
-                    className="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded transition duration-300 text-sm"
-                  >
-                    Connect GitHub
-                  </button>
-                </div>
-              )}
-            </div>
+            <GithubStats
+              gitHubStats={gitHubStats}
+              userProfile={userProfile}
+              setIsEditingProfile={setIsEditingProfile}
+            />
           )}
 
           {activeTab === "leetcode" && (
