@@ -24,7 +24,7 @@ const Dashboard = () => {
 
       if (!leetCodeUsername) return;
 
-      console.log("Fetching LeetCode stats for:", leetCodeUsername);
+      // console.log("Fetching LeetCode stats for:", leetCodeUsername);
 
       // Make the API call
       const response = await fetch(
@@ -36,7 +36,7 @@ const Dashboard = () => {
       }
 
       const data = await response.json();
-      console.log("LeetCode API response:", data);
+      // console.log("LeetCode API response:", data);
 
       if (data) {
         // Set all the stats we need for the detailed view
@@ -158,7 +158,7 @@ const Dashboard = () => {
 
       if (!githubUsername) return null;
 
-      console.log("Fetching GitHub stats for:", githubUsername);
+      // console.log("Fetching GitHub stats for:", githubUsername);
 
       // Public GitHub API endpoint - no authentication required for basic public data
       const response = await fetch(`https://api.github.com/users/${githubUsername}`);
@@ -168,7 +168,7 @@ const Dashboard = () => {
       }
       
       const data = await response.json();
-      console.log("GitHub user data:", data);
+      // console.log("GitHub user data:", data);
       
       // Just extract the fields we need from the public API
       return {
@@ -203,7 +203,7 @@ const Dashboard = () => {
         return null;
       }
 
-      console.log("Attempting to refresh token...");
+      // console.log("Attempting to refresh token...");
 
       const response = await fetch(`${API_BASE_URL}/token/refresh/`, {
         method: "POST",
@@ -217,13 +217,13 @@ const Dashboard = () => {
 
       if (response.ok) {
         const data = await response.json();
-        console.log("Token refreshed successfully");
+        // console.log("Token refreshed successfully");
 
         // Store the new access token
         localStorage.setItem("accessToken", data.access);
         return data.access;
       } else {
-        console.log("Failed to refresh token, status:", response.status);
+        // console.log("Failed to refresh token, status:", response.status);
         // If refresh token is invalid or expired, log the user out
         handleLogout();
         return null;
@@ -240,15 +240,15 @@ const Dashboard = () => {
       let token = localStorage.getItem("accessToken");
 
       if (!token) {
-        console.log("No token found, redirecting to login");
+        // console.log("No token found, redirecting to login");
         navigate("/auth");
         return;
       }
 
-      console.log(
-        "Fetching profile with token:",
-        token?.substring(0, 15) + "..."
-      );
+      // console.log(
+      //   "Fetching profile with token:",
+      //   token?.substring(0, 15) + "..."
+      // );
 
       // First attempt with current token
       let response = await fetch(`${API_BASE_URL}/profile/`, {
@@ -259,23 +259,23 @@ const Dashboard = () => {
         },
       });
 
-      console.log("Profile API response status:", response.status);
+      // console.log("Profile API response status:", response.status);
 
       // If unauthorized, try refreshing the token and retry
       if (response.status === 401) {
-        console.log("Token expired, attempting to refresh...");
+        // console.log("Token expired, attempting to refresh...");
         const newToken = await refreshAccessToken();
 
         if (!newToken) {
-          console.log("Could not refresh token, redirecting to login");
+          // console.log("Could not refresh token, redirecting to login");
           navigate("/auth");
           return;
         }
 
-        console.log(
-          "Retrying with new token:",
-          newToken.substring(0, 15) + "..."
-        );
+        // console.log(
+        //   "Retrying with new token:",
+        //   newToken.substring(0, 15) + "..."
+        // );
 
         // Retry with new token
         response = await fetch(`${API_BASE_URL}/profile/`, {
@@ -286,12 +286,12 @@ const Dashboard = () => {
           },
         });
 
-        console.log("Retry profile API response status:", response.status);
+        // console.log("Retry profile API response status:", response.status);
       }
 
       if (response.ok) {
         const data = await response.json();
-        console.log("Profile data received:", data);
+        // console.log("Profile data received:", data);
 
         // Parse skills properly to handle the array with bracket characters
         let parsedSkills = [];
@@ -310,7 +310,7 @@ const Dashboard = () => {
                 parsedSkills = JSON.parse(skillsStr);
               }
             } catch (e) {
-              console.log("Could not parse skills from joined string:", e);
+              // console.log("Could not parse skills from joined string:", e);
             }
           }
         }
@@ -418,7 +418,7 @@ const Dashboard = () => {
       // FIXED: Send exactly "True" or "False" string for Django
       const visibilityValue = userProfile.is_public ? "True" : "False";
       formData.append("is_public", visibilityValue);
-      console.log("Sending is_public as:", visibilityValue);
+      // console.log("Sending is_public as:", visibilityValue);
 
       // Fix the skills array
       if (skills.length > 0) {
@@ -438,7 +438,7 @@ const Dashboard = () => {
         formData.append("profile_image", userProfile.profileImage);
       }
 
-      console.log("Sending profile data...");
+      // console.log("Sending profile data...");
 
       // First attempt with current token
       let response = await fetch(`${API_BASE_URL}/profile/`, {
@@ -449,11 +449,11 @@ const Dashboard = () => {
         body: formData,
       });
 
-      console.log("Save response status:", response.status);
+      // console.log("Save response status:", response.status);
 
       // If unauthorized, try refreshing the token and retry
       if (response.status === 401) {
-        console.log("Token expired during save, attempting to refresh...");
+        // console.log("Token expired during save, attempting to refresh...");
         const newToken = await refreshAccessToken();
 
         if (!newToken) {
@@ -473,12 +473,12 @@ const Dashboard = () => {
           body: formData,
         });
 
-        console.log("Retry save response status:", response.status);
+        // console.log("Retry save response status:", response.status);
       }
 
       if (response.ok) {
         const responseData = await response.json();
-        console.log("Save response:", responseData);
+        // console.log("Save response:", responseData);
 
         setSaveStatus({
           message: "Profile saved successfully!",
@@ -542,7 +542,7 @@ const Dashboard = () => {
   };
 
   const removeProject = (projectId) => {
-    console.log("Removing project with ID:", projectId);
+    // console.log("Removing project with ID:", projectId);
     setProjects(projects.filter((project) => project.id !== projectId));
   };
 

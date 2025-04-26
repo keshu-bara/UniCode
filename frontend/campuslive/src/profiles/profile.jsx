@@ -20,14 +20,7 @@ export default function ProfileCard() {
       avatar:
         "https://media.licdn.com/dms/image/v2/D5603AQE5nN4tpn0mUA/profile-displayphoto-shrink_800_800/profile-displayphoto-shrink_800_800/0/1724782288558?e=1747267200&v=beta&t=_DNGKRCziu3I8nKFc1U4kBAFmnBBA1TiJ6RudwHBuuQ",
     },
-    {
-      id: 3,
-      name: "Bhommi Jain",
-      role: "DSA Enthusiast",
-      skills: ["Java", "SQL", "System Design"],
-      avatar:
-        "https://media.licdn.com/dms/image/v2/D5603AQE9594LLRCwsA/profile-displayphoto-shrink_800_800/B56ZRMAEwUHQAg-/0/1736441879369?e=1747267200&v=beta&t=qg56WdEAIfNlo5XhQegZhJ2WK5e6oA-Yq_QchlCc7PU",
-    },
+
   ];
 
   const [profiles, setProfiles] = useState(initialProfiles);

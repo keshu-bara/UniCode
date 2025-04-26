@@ -119,7 +119,7 @@ export default function Hero() {
                   ></path>
                 </svg>
               </div>
-              <p>Ask someone with the same vibe for a date</p>
+              <p>Ask someone with the same vibe</p>
             </div>
             <div className="flex items-center mb-3">
               <div className="w-8 h-8 rounded-full bg-green-900/40 flex items-center justify-center mr-3">
