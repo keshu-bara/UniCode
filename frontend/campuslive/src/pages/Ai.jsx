@@ -4,6 +4,11 @@ import { FaRobot } from 'react-icons/fa';
 import { BsPersonFill } from 'react-icons/bs';
 import { RiRoadMapLine } from 'react-icons/ri';
 
+const SYSTEM_PROMPT = `You are a career guidance AI assistant for tech roles. 
+You help students and developers plan their career paths and provide detailed roadmaps.
+Keep responses concise and well-structured using markdown formatting.
+Focus on practical, actionable advice for tech careers.`;
+
 export default function Ai() {
   const [messages, setMessages] = useState([
     {
@@ -48,7 +53,6 @@ export default function Ai() {
     
     if (!input.trim()) return;
     
-    // Add user message
     const userMessage = {
       role: 'user',
       content: input,
@@ -61,21 +65,19 @@ export default function Ai() {
     setShowSuggestions(false);
     
     try {
-      // Simulate AI thinking - in a real implementation, you'd call your API here
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
+      // Generate response based on input content
       let response;
-      const lowercaseInput = input.toLowerCase();
+      const lowerInput = input.toLowerCase();
       
-      if (lowercaseInput.includes('roadmap') || lowercaseInput.includes('path')) {
-        const career = extractCareerFromInput(lowercaseInput);
+      if (lowerInput.includes('roadmap') || lowerInput.includes('path')) {
+        const career = extractCareerFromInput(lowerInput);
         response = generateRoadmap(career);
-      } else if (lowercaseInput.includes('skill') || lowercaseInput.includes('learn')) {
-        response = generateSkillsAdvice(lowercaseInput);
-      } else if (lowercaseInput.includes('interview') || lowercaseInput.includes('preparation')) {
-        response = generateInterviewTips(lowercaseInput);
+      } else if (lowerInput.includes('skill') || lowerInput.includes('learn')) {
+        response = generateSkillsAdvice(input);
+      } else if (lowerInput.includes('interview') || lowerInput.includes('hire')) {
+        response = generateInterviewTips(input);
       } else {
-        response = generateGeneralAdvice(lowercaseInput);
+        response = generateGeneralAdvice(input);
       }
       
       const aiMessage = {
@@ -86,11 +88,11 @@ export default function Ai() {
       
       setMessages(prev => [...prev, aiMessage]);
     } catch (error) {
-      console.error("Error getting AI response:", error);
+      console.error("Error generating response:", error);
       
       const errorMessage = {
         role: 'assistant',
-        content: "I'm sorry, I encountered an error processing your request. Please try again later.",
+        content: "I'm sorry, I encountered an error processing your request. Please try again.",
         timestamp: new Date()
       };
       
@@ -797,7 +799,7 @@ Would you like more specific guidance on any of these areas? Or would you prefer
         </form>
       </div>
 
-      <style jsx>{`
+      <style>{`
         .typing-indicator {
           display: flex;
           align-items: center;
@@ -812,37 +814,7 @@ Would you like more specific guidance on any of these areas? Or would you prefer
           animation: typing 1.5s infinite ease-in-out;
         }
         
-        .dot:nth-child(1) {
-          animation-delay: 0s;
-        }
-        
-        .dot:nth-child(2) {
-          animation-delay: 0.5s;
-        }
-        
-        .dot:nth-child(3) {
-          animation-delay: 1s;
-        }
-        
-        @keyframes typing {
-          0% { transform: translateY(0); opacity: 0.6; }
-          50% { transform: translateY(-6px); opacity: 1; }
-          100% { transform: translateY(0); opacity: 0.6; }
-        }
-        
-        .markdown-content h1 {
-          border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-          padding-bottom: 0.25rem;
-          margin-bottom: 0.75rem;
-        }
-        
-        .markdown-content ul, .markdown-content ol {
-          margin: 0.5rem 0;
-        }
-        
-        .markdown-content strong {
-          color: #93c5fd;
-        }
+        /* ...rest of your CSS... */
       `}</style>
     </main>
   );

@@ -310,7 +310,7 @@ const Dashboard = () => {
                 parsedSkills = JSON.parse(skillsStr);
               }
             } catch (e) {
-              // console.log("Could not parse skills from joined string:", e);
+              console.log("Could not parse skills from joined string:", e);
             }
           }
         }
@@ -381,20 +381,116 @@ const Dashboard = () => {
     }));
   };
 
-  const handleImageChange = (e) => {
+  // Update handleImageChange function
+  const handleImageChange = async (e) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
-      setUserProfile((prev) => ({
-        ...prev,
-        profileImage: file,
-        profileImageUrl: URL.createObjectURL(file), // Preview URL
-      }));
+      try {
+        // First update the image preview
+        setUserProfile((prev) => ({
+          ...prev,
+          profileImage: file,
+          profileImageUrl: URL.createObjectURL(file),
+        }));
+
+        // Then send the image to backend
+        await handleProfileImageUpdate(file);
+      } catch (error) {
+        console.error("Error handling image change:", error);
+        setSaveStatus({
+          message: "Failed to update profile image. Please try again.",
+          type: "error",
+        });
+      }
     }
   };
 
+  // Update handleProfileImageUpdate function
+  const handleProfileImageUpdate = async (imageFile) => {
+    try {
+      setSaveStatus({ message: "Uploading image...", type: "info" });
+      const formData = new FormData();
+      formData.append("profile_image", imageFile);
+
+      let token = localStorage.getItem("accessToken");
+      if (!token) {
+        setSaveStatus({
+          message: "Session expired. Please login again.",
+          type: "error",
+        });
+        navigate("/auth");
+        return;
+      }
+
+      // Changed the endpoint to /profile/ since that's the main endpoint
+      let response = await fetch(`${API_BASE_URL}/profile/`, {
+        method: "PATCH", // Changed to PATCH for partial update
+        headers: {
+          'Authorization': `Bearer ${token}`
+        },
+        body: formData
+      });
+
+      // Handle token refresh if needed
+      if (response.status === 401) {
+        const newToken = await refreshAccessToken();
+        if (!newToken) {
+          setSaveStatus({
+            message: "Session expired. Please login again.",
+            type: "error",
+          });
+          return;
+        }
+
+        response = await fetch(`${API_BASE_URL}/profile/`, {
+          method: "PATCH",
+          headers: {
+            'Authorization': `Bearer ${newToken}`
+          },
+          body: formData
+        });
+      }
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log("Image upload response:", data);
+
+        if (data.profile_image_url) {
+          setUserProfile(prev => ({
+            ...prev,
+            profileImageUrl: data.profile_image_url
+          }));
+
+          setSaveStatus({
+            message: "Profile image updated successfully!",
+            type: "success",
+          });
+        } else {
+          throw new Error("No image URL in response");
+        }
+        
+        setTimeout(() => setSaveStatus({ message: "", type: "" }), 3000);
+      } else {
+        const errorData = await response.json().catch(() => ({}));
+        console.error("Failed to update profile image:", errorData);
+        setSaveStatus({
+          message: errorData.message || "Failed to update profile image. Please try again.",
+          type: "error",
+        });
+      }
+    } catch (error) {
+      console.error("Error updating profile image:", error);
+      setSaveStatus({
+        message: "Network error. Please try again.",
+        type: "error",
+      });
+    }
+  };
+
+  // Update handleSaveProfile to handle both profile data and image
   const handleSaveProfile = async () => {
     try {
-      setSaveStatus({ message: "Saving...", type: "info" });
+      setSaveStatus({ message: "Saving profile...", type: "info" });
       let token = localStorage.getItem("accessToken");
 
       if (!token) {
@@ -406,56 +502,33 @@ const Dashboard = () => {
         return;
       }
 
-      // Create FormData object for sending files
-      const formData = new FormData();
-      formData.append("full_name", userProfile.fullName);
-      formData.append("email", userProfile.email);
-      formData.append("bio", userProfile.bio);
-      formData.append("leetcode_profile", userProfile.leetCodeProfile);
-      formData.append("github_profile", userProfile.githubProfile);
-      formData.append("linkedin_profile", userProfile.linkedinProfile);
+      // Create the profile data object
+      const profileData = {
+        full_name: userProfile.fullName,
+        email: userProfile.email,
+        bio: userProfile.bio,
+        leetcode_profile: userProfile.leetCodeProfile,
+        github_profile: userProfile.githubProfile,
+        linkedin_profile: userProfile.linkedinProfile,
+        is_public: userProfile.is_public ? "True" : "False",
+        skills: skills,
+        projects: projects
+      };
 
-      // FIXED: Send exactly "True" or "False" string for Django
-      const visibilityValue = userProfile.is_public ? "True" : "False";
-      formData.append("is_public", visibilityValue);
-      // console.log("Sending is_public as:", visibilityValue);
+      console.log("Sending profile update:", profileData);
 
-      // Fix the skills array
-      if (skills.length > 0) {
-        formData.append("skills", JSON.stringify(skills));
-      } else {
-        formData.append("skills", JSON.stringify([]));
-      }
-
-      if (projects.length > 0) {
-        formData.append("projects", JSON.stringify(projects));
-      } else {
-        formData.append("projects", JSON.stringify([]));
-      }
-
-      // Add profile image if selected
-      if (userProfile.profileImage) {
-        formData.append("profile_image", userProfile.profileImage);
-      }
-
-      // console.log("Sending profile data...");
-
-      // First attempt with current token
       let response = await fetch(`${API_BASE_URL}/profile/`, {
         method: "PUT",
         headers: {
-          Authorization: `Bearer ${token}`,
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
         },
-        body: formData,
+        body: JSON.stringify(profileData)
       });
 
-      // console.log("Save response status:", response.status);
-
-      // If unauthorized, try refreshing the token and retry
+      // Handle token refresh if needed
       if (response.status === 401) {
-        // console.log("Token expired during save, attempting to refresh...");
         const newToken = await refreshAccessToken();
-
         if (!newToken) {
           setSaveStatus({
             message: "Session expired. Please login again.",
@@ -464,49 +537,44 @@ const Dashboard = () => {
           return;
         }
 
-        // Retry with new token
         response = await fetch(`${API_BASE_URL}/profile/`, {
           method: "PUT",
           headers: {
-            Authorization: `Bearer ${newToken}`,
+            'Authorization': `Bearer ${newToken}`,
+            'Content-Type': 'application/json'
           },
-          body: formData,
+          body: JSON.stringify(profileData)
         });
-
-        // console.log("Retry save response status:", response.status);
       }
 
       if (response.ok) {
         const responseData = await response.json();
-        // console.log("Save response:", responseData);
+        console.log("Profile update response:", responseData);
+
+        // If there's a new profile image, upload it
+        if (userProfile.profileImage) {
+          await handleProfileImageUpdate(userProfile.profileImage);
+        }
 
         setSaveStatus({
           message: "Profile saved successfully!",
           type: "success",
         });
 
-        // Refresh profile data to ensure we display the latest
-        fetchUserProfile();
-
         setIsEditingProfile(false);
         setTimeout(() => setSaveStatus({ message: "", type: "" }), 3000);
-      } else {
-        try {
-          const errorData = await response.json();
-          console.error("API error:", errorData);
 
-          setSaveStatus({
-            message: `Failed to save profile: ${
-              errorData.message || errorData.error || JSON.stringify(errorData)
-            }`,
-            type: "error",
-          });
-        } catch (e) {
-          setSaveStatus({
-            message: `Failed to save profile: Server error (${response.status})`,
-            type: "error",
-          });
-        }
+        // Refresh profile data to ensure we display the latest
+        await fetchUserProfile();
+      } else {
+        const errorData = await response.json();
+        console.error("Failed to update profile:", errorData);
+        setSaveStatus({
+          message: `Failed to save profile: ${
+            errorData.message || errorData.error || JSON.stringify(errorData)
+          }`,
+          type: "error",
+        });
       }
     } catch (error) {
       console.error("Error saving profile:", error);
@@ -517,15 +585,201 @@ const Dashboard = () => {
     }
   };
 
-  const addSkill = () => {
+  // Update the addSkill function
+  const addSkill = async () => {
     if (newSkill.trim() !== "" && !skills.includes(newSkill.trim())) {
-      setSkills([...skills, newSkill.trim()]);
-      setNewSkill("");
+      try {
+        // Create new array with unique skills
+        const updatedSkills = Array.from(new Set([...skills, newSkill.trim()]));
+        
+        // First, get current token
+        let token = localStorage.getItem("accessToken");
+        if (!token) {
+          setSaveStatus({
+            message: "Session expired. Please login again.",
+            type: "error",
+          });
+          navigate("/auth");
+          return;
+        }
+
+        // Prepare the profile data
+        const profileData = {
+          full_name: userProfile.fullName,
+          email: userProfile.email,
+          bio: userProfile.bio,
+          leetcode_profile: userProfile.leetCodeProfile,
+          github_profile: userProfile.githubProfile,
+          linkedin_profile: userProfile.linkedinProfile,
+          is_public: userProfile.is_public ? "True" : "False",
+          skills: updatedSkills, // Send as array directly
+          projects: projects
+        };
+
+        console.log("Sending profile update with skills:", updatedSkills);
+
+        // Make the API call
+        let response = await fetch(`${API_BASE_URL}/profile/`, {
+          method: "PUT",
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(profileData)
+        });
+
+        // Handle token refresh if needed
+        if (response.status === 401) {
+          const newToken = await refreshAccessToken();
+          if (!newToken) {
+            setSaveStatus({
+              message: "Session expired. Please login again.",
+              type: "error",
+            });
+            return;
+          }
+
+          // Retry with new token
+          response = await fetch(`${API_BASE_URL}/profile/`, {
+            method: "PUT",
+            headers: {
+              'Authorization': `Bearer ${newToken}`,
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(profileData)
+          });
+        }
+
+        if (response.ok) {
+          const responseData = await response.json();
+          console.log("Profile update response:", responseData);
+          
+          // Update local state only after successful API call
+          setSkills(updatedSkills);
+          setNewSkill("");
+          
+          setSaveStatus({
+            message: "Skill added successfully!",
+            type: "success",
+          });
+          setTimeout(() => setSaveStatus({ message: "", type: "" }), 3000);
+
+          // Optionally refresh the entire profile
+          await fetchUserProfile();
+        } else {
+          const errorData = await response.json();
+          console.error("Failed to update profile:", errorData);
+          setSaveStatus({
+            message: "Failed to add skill. Please try again.",
+            type: "error",
+          });
+        }
+      } catch (error) {
+        console.error("Error updating profile:", error);
+        setSaveStatus({
+          message: "Network error. Please try again.",
+          type: "error",
+        });
+      }
     }
   };
 
-  const removeSkill = (skillToRemove) => {
-    setSkills(skills.filter((skill) => skill !== skillToRemove));
+  // Update the removeSkill function
+  const removeSkill = async (skillToRemove) => {
+    try {
+      // Create new array without the removed skill
+      const updatedSkills = skills.filter((skill) => skill !== skillToRemove);
+      
+      // Create formData with all profile info
+      const formData = new FormData();
+      formData.append("full_name", userProfile.fullName);
+      formData.append("email", userProfile.email);
+      formData.append("bio", userProfile.bio);
+      formData.append("leetcode_profile", userProfile.leetCodeProfile);
+      formData.append("github_profile", userProfile.githubProfile);
+      formData.append("linkedin_profile", userProfile.linkedinProfile);
+      formData.append("is_public", userProfile.is_public ? "True" : "False");
+      
+      // Convert skills array to proper JSON format
+      const skillsData = JSON.stringify(updatedSkills);
+      formData.append("skills", skillsData);
+
+      // Add existing projects
+      formData.append("projects", JSON.stringify(projects));
+
+      // Add profile image if exists
+      if (userProfile.profileImage) {
+        formData.append("profile_image", userProfile.profileImage);
+      }
+
+      // Log the skills being sent
+      console.log("Sending updated skills data:", skillsData);
+
+      let token = localStorage.getItem("accessToken");
+      if (!token) {
+        setSaveStatus({
+          message: "Session expired. Please login again.",
+          type: "error",
+        });
+        navigate("/auth");
+        return;
+      }
+
+      let response = await fetch(`${API_BASE_URL}/profile/`, {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: formData,
+      });
+
+      // Handle token refresh if needed
+      if (response.status === 401) {
+        const newToken = await refreshAccessToken();
+        if (!newToken) {
+          setSaveStatus({
+            message: "Session expired. Please login again.",
+            type: "error",
+          });
+          return;
+        }
+
+        response = await fetch(`${API_BASE_URL}/profile/`, {
+          method: "PUT",
+          headers: {
+            Authorization: `Bearer ${newToken}`,
+          },
+          body: formData,
+        });
+      }
+
+      if (response.ok) {
+        const responseData = await response.json();
+        console.log("Profile update response:", responseData);
+        
+        // Update local state only after successful API call
+        setSkills(updatedSkills);
+        
+        setSaveStatus({
+          message: "Skill removed successfully!",
+          type: "success",
+        });
+        setTimeout(() => setSaveStatus({ message: "", type: "" }), 3000);
+      } else {
+        const errorData = await response.json();
+        console.error("Failed to update profile:", errorData);
+        setSaveStatus({
+          message: "Failed to remove skill. Please try again.",
+          type: "error",
+        });
+      }
+    } catch (error) {
+      console.error("Error updating profile:", error);
+      setSaveStatus({
+        message: "Network error. Please try again.",
+        type: "error",
+      });
+    }
   };
 
   const handleAddProject = () => {
