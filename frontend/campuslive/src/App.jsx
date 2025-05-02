@@ -8,7 +8,8 @@ import Footer from "./components/Footer";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import DashBoard from "./pages/DashBoard";
 import Ai from "./pages/Ai";
-import { Analytics } from "@vercel/analytics/react"; //Corrected here
+
+
 
 function App() {
   return (
@@ -32,7 +33,6 @@ function App() {
               <Route path="Ai/" element={<Ai />} />
               <Route path="DashBoard/" element={<DashBoard />} />
             </Routes>
-            <Analytics /> {/* ✅ Correct placement and import */}
           </main>
           <Footer />
         </div>
