@@ -1,27 +1,22 @@
-import './App.css'
-import Header from './components/Header'
-import Hero from './components/Hero'
-import Auth from './components/Auth/Auth'
-import About from './pages/About'
-import Test  from './pages/Test'
-import Footer from './components/Footer'
-import { BrowserRouter, Route, Routes } from "react-router"
-import DashBoard from './pages/DashBoard'
-import Ai from './pages/Ai'
-import { Analytics } from "@vercel/analytics/next";
-
-
-
+import "./App.css";
+import Header from "./components/Header";
+import Hero from "./components/Hero";
+import Auth from "./components/Auth/Auth";
+import About from "./pages/About";
+import Test from "./pages/Test";
+import Footer from "./components/Footer";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
+import DashBoard from "./pages/DashBoard";
+import Ai from "./pages/Ai";
+import { Analytics } from "@vercel/analytics/react"; //Corrected here
 
 function App() {
-
   return (
     <>
       <BrowserRouter>
         <div className="flex flex-col min-h-screen">
           <Header />
           <main className="flex-grow mb-1">
-            {/* Your page content */}
             <Routes>
               <Route
                 path="/"
@@ -34,12 +29,10 @@ function App() {
               <Route path="auth/" element={<Auth />} />
               <Route path="about/" element={<About />} />
               <Route path="Test/" element={<Test />} />
-
               <Route path="Ai/" element={<Ai />} />
               <Route path="DashBoard/" element={<DashBoard />} />
             </Routes>
-            <Analytics />
-
+            <Analytics /> {/* ✅ Correct placement and import */}
           </main>
           <Footer />
         </div>
@@ -48,4 +41,4 @@ function App() {
   );
 }
 
-export default App
+export default App;
