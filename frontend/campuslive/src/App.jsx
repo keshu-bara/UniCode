@@ -8,6 +8,7 @@ import Footer from './components/Footer'
 import { BrowserRouter, Route, Routes } from "react-router"
 import DashBoard from './pages/DashBoard'
 import Ai from './pages/Ai'
+import { Analytics } from "@vercel/analytics/next";
 
 
 
@@ -37,6 +38,8 @@ function App() {
               <Route path="Ai/" element={<Ai />} />
               <Route path="DashBoard/" element={<DashBoard />} />
             </Routes>
+            <Analytics />
+
           </main>
           <Footer />
         </div>
