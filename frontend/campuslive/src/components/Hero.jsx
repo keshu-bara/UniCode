@@ -8,6 +8,19 @@ export default function Hero() {
       const [currentIndex, setCurrentIndex] = useState(0);
       const [isDeleting, setIsDeleting] = useState(false);
       const [loopNum, setLoopNum] = useState(0);
+      const [showBetaModal, setShowBetaModal] = useState(false);
+
+      useEffect(() => {
+        const hasSeenBeta = localStorage.getItem('hasSeenBetaMessage');
+        if (!hasSeenBeta) {
+          setShowBetaModal(true);
+          localStorage.setItem('hasSeenBetaMessage', 'true');
+        }
+      }, []);
+
+      const closeBetaModal = () => {
+        setShowBetaModal(false);
+      };
 
       const roles = ["Developer", "DSA Enthusiast", "Competative Programmer","Data Scientist"];
       const typingSpeed = 150; // Speed in milliseconds
@@ -200,6 +213,47 @@ export default function Hero() {
           </div>
         </div>
       </div>
+
+      {/* Beta Modal */}
+      {showBetaModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
+          <div className="fixed inset-0 bg-black/50" onClick={closeBetaModal}></div>
+          <div className="relative bg-gray-900 p-6 rounded-lg shadow-xl border border-sky-500/20 max-w-md w-full">
+            <div className="flex items-center mb-4">
+              <h2 className="text-xl font-bold text-white flex items-center">
+                <span className="text-sky-500 mr-2">β</span>
+                Beta Version Notice
+              </h2>
+              <span className="ml-2 px-2 py-1 text-xs bg-sky-500/20 text-sky-400 rounded-full">
+                v0.1
+              </span>
+            </div>
+            <p className="text-gray-300 mb-4">
+              Welcome to UniCode! 🚀 We're currently in beta, which means:
+            </p>
+            <ul className="text-gray-400 mb-6 space-y-2">
+              <li className="flex items-start">
+                <span className="text-sky-500 mr-2">•</span>
+                You might encounter some bugs or incomplete features
+              </li>
+              <li className="flex items-start">
+                <span className="text-sky-500 mr-2">•</span>
+                We're actively developing and improving the platform
+              </li>
+              <li className="flex items-start">
+                <span className="text-sky-500 mr-2">•</span>
+                Your feedback is valuable to us!
+              </li>
+            </ul>
+            <button
+              onClick={closeBetaModal}
+              className="w-full bg-sky-500 hover:bg-sky-600 text-white py-2 px-4 rounded-lg transition-colors duration-200"
+            >
+              Got it! Let's explore
+            </button>
+          </div>
+        </div>
+      )}
     </main>
   );
 }

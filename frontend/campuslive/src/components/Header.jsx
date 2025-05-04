@@ -23,11 +23,16 @@ export default function Header() {
         {/* Top Section: Logo and Navigation */}
         <div className="flex flex-wrap justify-between items-center">
           {/* Logo */}
-          <div className="UniCoders flex items-center">
+          <div className="UniCoders flex items-center relative">
             <h1 className="text-2xl md:text-4xl font-bold text-white">Uni</h1>
-            <h1 className="text-2xl md:text-4xl font-bold text-sky-500">
-              Code
-            </h1>
+            <div className="flex flex-col relative">
+              <h1 className="text-2xl md:text-4xl font-bold text-sky-500">
+                Code
+              </h1>
+              <span className="absolute -right-8 -top-3 text-base bg-sky-500/20 text-sky-400 px-2 py-0.5 rounded-sm font-mono transform -rotate-12 tracking-tighter">
+                βv1.0
+              </span>
+            </div>
           </div>
 
           {/* Mobile menu button */}
