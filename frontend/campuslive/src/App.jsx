@@ -5,11 +5,10 @@ import Auth from "./components/Auth/Auth";
 import About from "./pages/About";
 import Test from "./pages/Test";
 import Footer from "./components/Footer";
-import { BrowserRouter, Route, Routes } from "react-router";
+import { BrowserRouter, Route, Routes, Navigate } from "react-router";
 import DashBoard from "./pages/DashBoard";
 import Ai from "./pages/Ai";
-
-
+import { Analytics } from '@vercel/analytics/react';
 
 function App() {
   return (
@@ -19,24 +18,20 @@ function App() {
           <Header />
           <main className="flex-grow mb-1">
             <Routes>
-              <Route
-                path="/"
-                element={
-                  <div className="hero">
-                    <Hero />
-                  </div>
-                }
-              />
-              <Route path="auth/" element={<Auth />} />
-              <Route path="about/" element={<About />} />
-              <Route path="Test/" element={<Test />} />
-              <Route path="Ai/" element={<Ai />} />
-              <Route path="DashBoard/" element={<DashBoard />} />
+              <Route path="/" element={<Hero />} />
+              <Route path="/auth" element={<Auth />} />
+              <Route path="/about" element={<About />} />
+              <Route path="/test" element={<Test />} />
+              <Route path="/ai" element={<Ai />} />
+              <Route path="/dashboard" element={<DashBoard />} />
+              {/* Add a catch-all route for 404 */}
+              <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
           </main>
           <Footer />
         </div>
       </BrowserRouter>
+      <Analytics />
     </>
   );
 }
