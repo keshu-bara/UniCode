@@ -199,7 +199,7 @@ const Dashboard = () => {
       const refreshToken = localStorage.getItem("refreshToken");
 
       if (!refreshToken) {
-        console.log("No refresh token available");
+        //console.log("No refresh token available");
         return null;
       }
 
@@ -310,7 +310,7 @@ const Dashboard = () => {
                 parsedSkills = JSON.parse(skillsStr);
               }
             } catch (e) {
-              console.log("Could not parse skills from joined string:", e);
+              //console.log("Could not parse skills from joined string:", e);
             }
           }
         }
@@ -453,7 +453,7 @@ const Dashboard = () => {
 
       if (response.ok) {
         const data = await response.json();
-        console.log("Image upload response:", data);
+        //console.log("Image upload response:", data);
 
         if (data.profile_image_url) {
           setUserProfile(prev => ({
@@ -515,7 +515,7 @@ const Dashboard = () => {
         projects: projects
       };
 
-      console.log("Sending profile update:", profileData);
+      //console.log("Sending profile update:", profileData);
 
       let response = await fetch(`${API_BASE_URL}/profile/`, {
         method: "PUT",
@@ -549,7 +549,7 @@ const Dashboard = () => {
 
       if (response.ok) {
         const responseData = await response.json();
-        console.log("Profile update response:", responseData);
+        //console.log("Profile update response:", responseData);
 
         // If there's a new profile image, upload it
         if (userProfile.profileImage) {
@@ -616,7 +616,7 @@ const Dashboard = () => {
           projects: projects
         };
 
-        console.log("Sending profile update with skills:", updatedSkills);
+        //console.log("Sending profile update with skills:", updatedSkills);
 
         // Make the API call
         let response = await fetch(`${API_BASE_URL}/profile/`, {
@@ -652,7 +652,7 @@ const Dashboard = () => {
 
         if (response.ok) {
           const responseData = await response.json();
-          console.log("Profile update response:", responseData);
+          //console.log("Profile update response:", responseData);
           
           // Update local state only after successful API call
           setSkills(updatedSkills);
@@ -713,7 +713,7 @@ const Dashboard = () => {
       }
 
       // Log the skills being sent
-      console.log("Sending updated skills data:", skillsData);
+      //console.log("Sending updated skills data:", skillsData);
 
       let token = localStorage.getItem("accessToken");
       if (!token) {
@@ -755,7 +755,7 @@ const Dashboard = () => {
 
       if (response.ok) {
         const responseData = await response.json();
-        console.log("Profile update response:", responseData);
+        //console.log("Profile update response:", responseData);
         
         // Update local state only after successful API call
         setSkills(updatedSkills);
