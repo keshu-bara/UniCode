@@ -5,7 +5,7 @@ import Auth from "./components/Auth/Auth";
 import About from "./pages/About";
 import Test from "./pages/Test";
 import Footer from "./components/Footer";
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Route, Routes } from "react-router";
 import DashBoard from "./pages/DashBoard";
 import Ai from "./pages/Ai";
 
