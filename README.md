@@ -4,7 +4,7 @@
 
 ---
 
-<img src="./Homepage.png"  />
+![Homepage](./Homepage.png)
 
 ## 📚 About the Project
 
@@ -18,57 +18,75 @@ With Unicode, programmers can merge all their achievements, repositories, coding
 ## 🛠 Tech Stack
 
 ### Frontend
-- **React.js** – Building a responsive and dynamic single-page application
-- **TailwindCSS** – For clean, utility-first CSS styling
-- **React Icons** – Providing a rich library of developer-friendly icons
-- **React Router** – Handling seamless client-side routing
+- **React.js** – Building a responsive and dynamic single-page application  
+- **TailwindCSS** – For clean, utility-first CSS styling  
+- **React Icons** – Providing a rich library of developer-friendly icons  
+- **React Router** – Handling seamless client-side routing  
 
 ### Backend
-- **Python** – Primary backend programming language
-- **Django** – Web framework for rapid development and clean architecture
-- **Django REST Framework** – For creating scalable and secure RESTful APIs
-- **JWT Authentication** – Secure user login and management system
+- **Python** – Primary backend programming language  
+- **Django** – Web framework for rapid development and clean architecture  
+- **Django REST Framework** – For creating scalable and secure RESTful APIs  
+- **JWT Authentication** – Secure user login and management system  
 
 ### Database
-- **SQLite** – Used during development phase
-- **PostgreSQL** – Planned for production environment
+- **SQLite** – Used during development phase  
+- **PostgreSQL** – Planned for production environment  
 
 ---
 
 ## ✨ Key Features (Planned and Ongoing)
 
-- **Unified Developer Profile**: Connect multiple coding platforms (e.g., GitHub, LeetCode, CodeChef, and more)
-- **Single Shareable Link**: Share your entire programming journey through one link
-- **Automatic Profile Syncing**: Periodically update your profile data automatically
-- **Progress Tracking**: Visualize your coding growth over time
-- **Profile Customization**: (Coming Soon) Personalize your profile’s look and feel
-- **Analytics Dashboard**: (Planned) Insights into your coding journey and achievements
-- **Public and Private Mode**: (Planned) Control the visibility of your profiles
+- **Unified Developer Profile**: Connect multiple coding platforms (e.g., GitHub, LeetCode, CodeChef, and more)  
+- **Single Shareable Link**: Share your entire programming journey through one link  
+- **Automatic Profile Syncing**: Periodically update your profile data automatically  
+- **Progress Tracking**: Visualize your coding growth over time  
+- **Profile Customization**: *(Coming Soon)* Personalize your profile’s look and feel  
+- **Analytics Dashboard**: *(Planned)* Insights into your coding journey and achievements  
+- **Public and Private Mode**: *(Planned)* Control the visibility of your profiles  
 
 ---
 
 ## 🚀 Project Status
 
-- Backend development ✅ (in progress)
-- Frontend development ✅ (in progress)
-- API integration 🔄 (ongoing)
-- Hosting and Deployment 🕓 (pending)
+- Backend development ✅ (in progress)  
+- Frontend development ✅ (in progress)  
+- API integration 🔄 (ongoing)  
+- Hosting and Deployment ✅ (completed)  
 - Testing and Optimization 🕓 (pending)
 
-We are currently focused on completing the MVP (Minimum Viable Product) before public hosting.
+---
+
+## 🌐 Deployment Details
+
+### 🔧 Backend
+- Deployed on **AWS EC2**
+- Hosted using **Gunicorn**, **Nginx**, and **Supervisor**
+- SSL enabled via **No-IP SSL Certificate**
+- Admin Panel: [https://unicodebackend.ddns.net](https://unicodebackend.ddns.net)
+
+### 💻 Frontend
+- Deployed on **Vercel**
+- Live URL: [https://unicode-ochre.vercel.app/](https://unicode-ochre.vercel.app/)
+
+### 📊 Analytics
+- Vercel Analytics enabled to monitor site performance and user interactions
+
+### 🛡️ Additional Notes
+- Learned to use **SSH** for secure terminal-based server access and management
 
 ---
 
 ## 🛤️ Roadmap
 
-- [x] Basic profile creation and authentication
-- [x] Connect GitHub profile
-- [ ] Connect LeetCode and CodeChef profiles
-- [ ] Implement profile auto-sync
-- [ ] Build analytics dashboard
-- [ ] Add profile customization options
-- [ ] Prepare for production deployment (PostgreSQL, Server Setup)
-- [ ] Launch initial hosted version
+- [Done] Basic profile creation and authentication  
+- [Done] Connect GitHub profile  
+- [Done] Connect LeetCode and CodeChef profiles  
+- [Done] Implement profile auto-sync  
+- [Done] Build analytics dashboard  
+- [Done] Add profile customization options  
+- [Pending] Prepare for production deployment (PostgreSQL, Server Setup)  
+- [ ] Launch initial hosted version  
 
 ---
 
@@ -88,4 +106,3 @@ This project will be licensed under [MIT License](LICENSE) (to be added once the
 ## 📢 Stay Updated
 
 Project updates and announcements will be made here as we move forward!
-
